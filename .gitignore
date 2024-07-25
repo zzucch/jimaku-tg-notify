@@ -1,0 +1,8 @@
+# gleam
+*.beam
+*.ez
+/build
+erl_crash.dump
+
+# direnv
+.direnv/
