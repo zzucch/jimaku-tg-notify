@@ -14,7 +14,5 @@ pub fn get_response(url: String) {
   response.status
   |> should.equal(200)
 
-  let dates = response.body
-
-  Ok(dates)
+  Ok(response.body)
 }

@@ -30,9 +30,9 @@ fn lexer() {
   lexer.simple([
     lexer.token("<span class=\"table-data file-modified\" title=\"", Start),
     lexer.token("</span>", End),
-    lexer.token("+", Plus),
     lexer.token("\">", Separator),
     lexer.token(":", Colon),
+    lexer.token("+", Plus),
     lexer.token("-", Minus),
     lexer.int(Num),
     lexer.whitespace(Nil)
