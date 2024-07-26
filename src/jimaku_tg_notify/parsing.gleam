@@ -8,7 +8,15 @@ pub type Date {
   Date(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int)
 }
 
-pub type Token {
+pub fn get_dates(data: List(String)) {
+  list.filter_map(data, fn(line: String) {
+    use tokens <- result.try(result.nil_error(lexer.run(line, lexer())))
+    use date <- result.try(result.nil_error(nibble.run(tokens, parser())))
+    Ok(date)
+  })
+}
+
+type Token {
   Start
   End
   Plus
@@ -16,14 +24,6 @@ pub type Token {
   Colon
   Minus
   Num(Int)
-}
-
-pub fn get_dates(data: List(String)) {
-  list.filter_map(data, fn(line: String) {
-    use tokens <- result.try(result.nil_error(lexer.run(line, lexer())))
-    use date <- result.try(result.nil_error(nibble.run(tokens, parser())))
-    Ok(date)
-  })
 }
 
 fn lexer() {

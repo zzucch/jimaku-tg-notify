@@ -5,6 +5,7 @@ import gleam/result
 import gleam/string
 import jimaku_tg_notify/http
 import jimaku_tg_notify/parsing
+import jimaku_tg_notify/storage
 
 pub fn main() {
   let assert Ok(dates) = {
@@ -19,6 +20,8 @@ pub fn main() {
     |> list.length()
     |> int.to_string(),
   )
+
+  let _ = storage.initialize_storage()
 
   Ok(dates)
 }
