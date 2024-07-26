@@ -40,9 +40,7 @@ pub fn main() {
     |> int.to_string(),
   )
 
-  dates
-  // |> list.each(io.debug(_))
-  |> Ok()
+  Ok(dates)
 }
 
 pub type Date {
@@ -112,13 +110,8 @@ fn offset_sign_parser() {
 
 fn get_dates(data: List(String)) {
   list.filter_map(data, fn(line: String) {
-    case lexer.run(line, lexer()) {
-      Ok(tokens) ->
-        case nibble.run(tokens, parser()) {
-          Ok(date) -> Ok(date)
-          _ -> Error("todo")
-        }
-      _ -> Error("todo")
-    }
+    use tokens <- result.try(result.nil_error(lexer.run(line, lexer())))
+    use date <- result.try(result.nil_error(nibble.run(tokens, parser())))
+    Ok(date)
   })
 }
