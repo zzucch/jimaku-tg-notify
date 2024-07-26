@@ -16,6 +16,7 @@ pub type ErrorCode {
   FailedToFindUser
   FailedToSubscribe
   FailedToUnsubscribe
+  FailedToGetSubscriptions
   MultipleUsersWithOneChatId
 }
 
@@ -78,7 +79,16 @@ pub fn unsubscribe(telegram_chat_id: Int, title_id: Int) {
 }
 
 pub fn get_all_subscriptions(telegram_chat_id: Int) {
-  todo
+  use conn <- sqlight.with_connection(connection)
+  use user_id <- result.try(find_user_id(telegram_chat_id))
+  let decoder = dynamic.element(0, dynamic.int)
+  let assert Ok(sql) = simplifile.read(sql_path <> "get_all_subscriptions.sql")
+  let res = sqlight.query(sql, conn, [sqlight.int(user_id)], decoder)
+  let _ = io.debug(res)
+  case res {
+    Ok(_) -> Ok(Nil)
+    _ -> Error(FailedToGetSubscriptions)
+  }
 }
 
 fn find_user_id(telegram_chat_id: Int) {

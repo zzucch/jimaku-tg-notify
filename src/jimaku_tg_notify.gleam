@@ -23,8 +23,11 @@ pub fn main() {
 
   let assert Ok(_) = storage.start()
   let assert Ok(_) = storage.add_user(1)
+  let assert Ok(_) = storage.get_all_subscriptions(1)
   let assert Ok(_) = storage.subscribe(1, 1, "")
+  let assert Ok(_) = storage.get_all_subscriptions(1)
   let assert Ok(_) = storage.unsubscribe(1, 1)
+  let assert Ok(_) = storage.get_all_subscriptions(1)
 
   Ok(dates)
 }
