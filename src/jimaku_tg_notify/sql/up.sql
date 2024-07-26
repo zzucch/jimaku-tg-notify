@@ -6,6 +6,6 @@ create table if not exists users (
 create table if not exists subscriptions (
   title_id primary key,
   user_id integer,
-  latest_subtitile_time text,
+  latest_subtitle_time text,
   foreign key(user_id) references users(id)
 );

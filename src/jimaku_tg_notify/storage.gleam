@@ -1,5 +1,6 @@
 import gleam/dynamic
 import gleam/int
+import gleam/io
 import gleam/result
 import simplifile
 import sqlight
@@ -14,6 +15,7 @@ pub type ErrorCode {
   UserNotFound
   FailedToFindUser
   FailedToSubscribe
+  FailedToUnsubscribe
   MultipleUsersWithOneChatId
 }
 
@@ -30,8 +32,7 @@ pub fn start() {
 pub fn add_user(telegram_chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
   let assert Ok(sql) = simplifile.read(sql_path <> "add_user.sql")
-  let sql = sql <> "(" <> int.to_string(telegram_chat_id) <> ");"
-  sqlight.exec(sql, conn)
+  sqlight.query(sql, conn, [sqlight.int(telegram_chat_id)], dynamic.dynamic)
 }
 
 pub fn subscribe(
@@ -42,38 +43,37 @@ pub fn subscribe(
   use conn <- sqlight.with_connection(connection)
   use user_id <- result.try(find_user_id(telegram_chat_id))
   let assert Ok(sql) = simplifile.read(sql_path <> "subscribe.sql")
-  let sql =
-    sql
-    <> "("
-    <> int.to_string(title_id)
-    <> ", "
-    <> int.to_string(user_id)
-    <> ", "
-    <> latest_subtitle_time
-    <> ");"
-  case sqlight.exec(sql, conn) {
-    Ok(Nil) -> Ok(Nil)
-    _ -> Error(UserNotFound)
+  case
+    sqlight.query(
+      sql,
+      conn,
+      [
+        sqlight.int(title_id),
+        sqlight.int(user_id),
+        sqlight.text(latest_subtitle_time),
+      ],
+      dynamic.dynamic,
+    )
+  {
+    Ok(_) -> Ok(Nil)
+    _ -> Error(FailedToSubscribe)
   }
 }
 
-pub fn unsubscribe(
-  telegram_chat_id: Int,
-  title_id: Int,
-) {
+pub fn unsubscribe(telegram_chat_id: Int, title_id: Int) {
   use conn <- sqlight.with_connection(connection)
   use user_id <- result.try(find_user_id(telegram_chat_id))
   let assert Ok(sql) = simplifile.read(sql_path <> "unsubscribe.sql")
-  let sql =
-    sql
-    <> "("
-    <> int.to_string(title_id)
-    <> ", "
-    <> int.to_string(user_id)
-    <> ");"
-  case sqlight.exec(sql, conn) {
-    Ok(Nil) -> Ok(Nil)
-    _ -> Error(UserNotFound)
+  case
+    sqlight.query(
+      sql,
+      conn,
+      [sqlight.int(title_id), sqlight.int(user_id)],
+      dynamic.dynamic,
+    )
+  {
+    Ok(_) -> Ok(Nil)
+    _ -> Error(FailedToUnsubscribe)
   }
 }
 
@@ -83,7 +83,7 @@ pub fn get_all_subscriptions(telegram_chat_id: Int) {
 
 fn find_user_id(telegram_chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
-  let decoder = dynamic.int
+  let decoder = dynamic.element(0, dynamic.int)
   let assert Ok(sql) = simplifile.read(sql_path <> "find_user.sql")
   let users =
     sqlight.query(

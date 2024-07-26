@@ -21,8 +21,10 @@ pub fn main() {
     |> int.to_string(),
   )
 
-  let assert Ok(Nil) = storage.start()
-  let assert Ok(Nil) = storage.add_user(1)
+  let assert Ok(_) = storage.start()
+  let assert Ok(_) = storage.add_user(1)
+  let assert Ok(_) = storage.subscribe(1, 1, "")
+  let assert Ok(_) = storage.unsubscribe(1, 1)
 
   Ok(dates)
 }
