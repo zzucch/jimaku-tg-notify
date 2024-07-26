@@ -6,3 +6,6 @@ erl_crash.dump
 
 # direnv
 .direnv/
+
+# database
+_data/

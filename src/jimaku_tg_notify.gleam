@@ -21,7 +21,8 @@ pub fn main() {
     |> int.to_string(),
   )
 
-  let _ = storage.initialize_storage()
+  let assert Ok(Nil) = storage.start()
+  let assert Ok(Nil) = storage.add_user(1)
 
   Ok(dates)
 }
