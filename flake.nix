@@ -27,6 +27,11 @@
           gleam
           erlang_nox
           rebar3
+
+          go
+          gotools
+          golangci-lint
+
           alejandra
         ];
       };
