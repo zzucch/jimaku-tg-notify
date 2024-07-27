@@ -9,3 +9,6 @@ erl_crash.dump
 
 # database
 _data/
+
+# env
+.env
