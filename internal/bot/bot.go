@@ -9,9 +9,22 @@ import (
 func handleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	chatID := update.Message.Chat.ID
 	log.Debug("handling message", "chatID", chatID)
+
+	sendMessage(bot, update, "idk")
+}
+
+func sendMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update, text string) {
+	message := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+	if _, err := bot.Send(message); err != nil {
+		log.Fatal(err)
+	}
+
+	chatID := update.Message.Chat.ID
+	log.Debug("sending message", "chatID", chatID, "messageText", text)
 }
 
 func Start(config config.Config) {
+	log.Debug("starting bot")
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
 		log.Fatal(
