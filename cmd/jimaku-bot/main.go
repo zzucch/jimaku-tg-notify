@@ -21,6 +21,5 @@ func main() {
 
 	log.Debug("loaded env config", "config", config)
 
-	log.Debug("starting bot")
 	bot.Start(config)
 }
