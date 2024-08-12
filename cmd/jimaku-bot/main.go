@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/charmbracelet/log"
+	"github.com/joho/godotenv"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
-	"github.com/joho/godotenv"
+	"github.com/zzucch/jimaku-tg-notify/internal/http"
 )
 
 func init() {
@@ -21,5 +22,6 @@ func main() {
 
 	log.Debug("loaded env config", "config", config)
 
+	go http.Start()
 	bot.Start(config)
 }

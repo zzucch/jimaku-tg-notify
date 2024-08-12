@@ -8,12 +8,14 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
 )
 
+var bot *tgbotapi.BotAPI
+
 const (
 	subscribeCommand   = "/sub"
 	unsubscribeCommand = "/unsub"
 )
 
-func handleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+func handleMessage(update tgbotapi.Update) {
 	chatID := update.Message.Chat.ID
 	log.Debug("handling message", "chatID", chatID)
 
@@ -37,28 +39,28 @@ func handleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 func handleSubscribe(update tgbotapi.Update) {
 	chatID := update.Message.Chat.ID
 	text := update.Message.Text[len(subscribeCommand):]
-	log.Debug("handling /sub", "chatID", chatID, "text", text)
+	log.Debug("handling "+subscribeCommand, "chatID", chatID, "text", text)
 }
 
 func handleUnsubscribe(update tgbotapi.Update) {
 	chatID := update.Message.Chat.ID
 	text := update.Message.Text[len(unsubscribeCommand):]
-	log.Debug("handling /sub", "chatID", chatID, "text", text)
+	log.Debug("handling "+unsubscribeCommand, "chatID", chatID, "text", text)
 }
 
-func sendMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update, text string) {
-	message := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+func SendMessage(chatID int64, text string) {
+	log.Debug("sending message", "chatID", chatID, "messageText", text)
+
+	message := tgbotapi.NewMessage(chatID, text)
 	if _, err := bot.Send(message); err != nil {
 		log.Fatal(err)
 	}
-
-	chatID := update.Message.Chat.ID
-	log.Debug("sending message", "chatID", chatID, "messageText", text)
 }
 
 func Start(config config.Config) {
 	log.Debug("starting bot")
-	bot, err := tgbotapi.NewBotAPI(config.BotToken)
+	var err error
+	bot, err = tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
 		log.Fatal(
 			"failed creating BotAPI instance",
@@ -82,6 +84,6 @@ func Start(config config.Config) {
 			continue
 		}
 
-		handleMessage(bot, update)
+		handleMessage(update)
 	}
 }
