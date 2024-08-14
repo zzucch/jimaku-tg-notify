@@ -6,8 +6,6 @@ const data_dir = "./_data"
 
 const connection = "file:./_data/sqlite.db?mode=rw"
 
-const sql_path = "./src/jimaku_tg_notify/sql/"
-
 pub type ErrorCode {
   UserNotFound
   FailedToFindUser
@@ -23,19 +21,35 @@ pub fn start() {
     _ -> simplifile.create_directory_all(data_dir)
   }
   use conn <- sqlight.with_connection(connection <> "c")
-  let assert Ok(sql) = simplifile.read(sql_path <> "up.sql")
+  let sql =
+    "create table if not exists users (
+      chat_id primary key
+    );
+
+    create table if not exists subscriptions (
+      title_id primary key,
+      chat_id integer,
+      latest_subtitle_time integer,
+      foreign key(chat_id) references users(chat_id)
+    );"
   sqlight.exec(sql, conn)
 }
 
 pub fn add_user(chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
-  let assert Ok(sql) = simplifile.read(sql_path <> "add_user.sql")
+  let sql = "insert into users (chat_id) values (?);"
+
   sqlight.query(sql, conn, [sqlight.int(chat_id)], dynamic.dynamic)
 }
 
 pub fn subscribe(chat_id: Int, title_id: Int, latest_subtitle_time: Int) {
   use conn <- sqlight.with_connection(connection)
-  let assert Ok(sql) = simplifile.read(sql_path <> "subscribe.sql")
+  let sql =
+    "insert into subscriptions (
+       title_id,
+       chat_id,
+       latest_subtitle_time) 
+    values (?, ?, ?);"
   case
     sqlight.query(
       sql,
@@ -55,7 +69,7 @@ pub fn subscribe(chat_id: Int, title_id: Int, latest_subtitle_time: Int) {
 
 pub fn unsubscribe(chat_id: Int, title_id: Int) {
   use conn <- sqlight.with_connection(connection)
-  let assert Ok(sql) = simplifile.read(sql_path <> "unsubscribe.sql")
+  let sql = "delete from subscriptions where title_id = ? and chat_id = ?;"
   case
     sqlight.query(
       sql,
@@ -72,7 +86,9 @@ pub fn unsubscribe(chat_id: Int, title_id: Int) {
 pub fn get_all_subscriptions(chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
   let decoder = dynamic.element(0, dynamic.int)
-  let assert Ok(sql) = simplifile.read(sql_path <> "get_all_subscriptions.sql")
+  let sql =
+    "select title_id, latest_subtitle_time from subscriptions 
+     where chat_id = ?"
   let res = sqlight.query(sql, conn, [sqlight.int(chat_id)], decoder)
   case res {
     Ok(_) -> Ok(Nil)

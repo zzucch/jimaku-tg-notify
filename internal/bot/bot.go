@@ -91,15 +91,29 @@ func handleUnsubscribe(update tgbotapi.Update) {
 
 func handleCommand(update tgbotapi.Update, command string) {
 	chatID := update.Message.Chat.ID
-	text := update.Message.Text[len(command):]
-	log.Debug("handling "+command, "chatID", chatID, "text", text)
+	unvalidatedTitleID := update.Message.Text[len(command):]
+	log.Debug("handling "+command, "chatID", chatID, "text", unvalidatedTitleID)
+
+	unvalidatedTitleID = strings.TrimSpace(unvalidatedTitleID)
+	_, err := strconv.Atoi(unvalidatedTitleID)
+	if unvalidatedTitleID == "" || err != nil {
+		log.Debug(
+			"failed to handle - invalid titleID",
+			"titleID",
+			unvalidatedTitleID,
+			"err",
+			err)
+
+		SendMessage(chatID, "invalid command")
+		return
+	}
 
 	fullURL := baseURL +
 		command +
 		"/" +
 		url.PathEscape(strconv.FormatInt(chatID, 10)) +
 		"/" +
-		url.PathEscape(strings.TrimSpace(text))
+		url.PathEscape(unvalidatedTitleID)
 
 	resp, err := http.Get(fullURL)
 	if err != nil {
@@ -115,5 +129,5 @@ func handleCommand(update tgbotapi.Update, command string) {
 		return
 	}
 
-	SendMessage(update.Message.From.ID, command[1:]+"bed")
+	SendMessage(update.Message.From.ID, "done")
 }
