@@ -1,1 +1,1 @@
-insert into users (telegram_chat_id) values (?);
+insert into users (chat_id) values (?);

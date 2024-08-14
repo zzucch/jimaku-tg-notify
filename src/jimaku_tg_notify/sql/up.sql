@@ -1,11 +1,10 @@
 create table if not exists users (
-  id integer primary key,
-  telegram_chat_id integer
+  chat_id primary key
 );
 
 create table if not exists subscriptions (
   title_id primary key,
-  user_id integer,
-  latest_subtitle_time text,
-  foreign key(user_id) references users(id)
+  chat_id integer,
+  latest_subtitle_time integer,
+  foreign key(chat_id) references users(chat_id)
 );

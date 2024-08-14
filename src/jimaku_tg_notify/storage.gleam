@@ -1,6 +1,4 @@
 import gleam/dynamic
-import gleam/io
-import gleam/result
 import simplifile
 import sqlight
 
@@ -29,19 +27,14 @@ pub fn start() {
   sqlight.exec(sql, conn)
 }
 
-pub fn add_user(telegram_chat_id: Int) {
+pub fn add_user(chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
   let assert Ok(sql) = simplifile.read(sql_path <> "add_user.sql")
-  sqlight.query(sql, conn, [sqlight.int(telegram_chat_id)], dynamic.dynamic)
+  sqlight.query(sql, conn, [sqlight.int(chat_id)], dynamic.dynamic)
 }
 
-pub fn subscribe(
-  telegram_chat_id: Int,
-  title_id: Int,
-  latest_subtitle_time: String,
-) {
+pub fn subscribe(chat_id: Int, title_id: Int, latest_subtitle_time: Int) {
   use conn <- sqlight.with_connection(connection)
-  use user_id <- result.try(find_user_id(telegram_chat_id))
   let assert Ok(sql) = simplifile.read(sql_path <> "subscribe.sql")
   case
     sqlight.query(
@@ -49,8 +42,8 @@ pub fn subscribe(
       conn,
       [
         sqlight.int(title_id),
-        sqlight.int(user_id),
-        sqlight.text(latest_subtitle_time),
+        sqlight.int(chat_id),
+        sqlight.int(latest_subtitle_time),
       ],
       dynamic.dynamic,
     )
@@ -60,15 +53,14 @@ pub fn subscribe(
   }
 }
 
-pub fn unsubscribe(telegram_chat_id: Int, title_id: Int) {
+pub fn unsubscribe(chat_id: Int, title_id: Int) {
   use conn <- sqlight.with_connection(connection)
-  use user_id <- result.try(find_user_id(telegram_chat_id))
   let assert Ok(sql) = simplifile.read(sql_path <> "unsubscribe.sql")
   case
     sqlight.query(
       sql,
       conn,
-      [sqlight.int(title_id), sqlight.int(user_id)],
+      [sqlight.int(title_id), sqlight.int(chat_id)],
       dynamic.dynamic,
     )
   {
@@ -77,34 +69,13 @@ pub fn unsubscribe(telegram_chat_id: Int, title_id: Int) {
   }
 }
 
-pub fn get_all_subscriptions(telegram_chat_id: Int) {
+pub fn get_all_subscriptions(chat_id: Int) {
   use conn <- sqlight.with_connection(connection)
-  use user_id <- result.try(find_user_id(telegram_chat_id))
   let decoder = dynamic.element(0, dynamic.int)
   let assert Ok(sql) = simplifile.read(sql_path <> "get_all_subscriptions.sql")
-  let res = sqlight.query(sql, conn, [sqlight.int(user_id)], decoder)
-  let _ = io.debug(res)
+  let res = sqlight.query(sql, conn, [sqlight.int(chat_id)], decoder)
   case res {
     Ok(_) -> Ok(Nil)
     _ -> Error(FailedToGetSubscriptions)
-  }
-}
-
-fn find_user_id(telegram_chat_id: Int) {
-  use conn <- sqlight.with_connection(connection)
-  let decoder = dynamic.element(0, dynamic.int)
-  let assert Ok(sql) = simplifile.read(sql_path <> "find_user.sql")
-  let users =
-    sqlight.query(
-      sql,
-      on: conn,
-      with: [sqlight.int(telegram_chat_id)],
-      expecting: decoder,
-    )
-  case users {
-    Ok([first]) -> Ok(first)
-    Ok([]) -> Error(UserNotFound)
-    Ok(_) -> Error(MultipleUsersWithOneChatId)
-    _ -> Error(FailedToFindUser)
   }
 }

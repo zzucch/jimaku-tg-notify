@@ -1,6 +1,9 @@
 package bot
 
 import (
+	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -13,40 +16,8 @@ var bot *tgbotapi.BotAPI
 const (
 	subscribeCommand   = "/sub"
 	unsubscribeCommand = "/unsub"
+	baseURL            = "http://localhost:3001"
 )
-
-func handleMessage(update tgbotapi.Update) {
-	chatID := update.Message.Chat.ID
-	log.Debug("handling message", "chatID", chatID)
-
-	messageText := update.Message.Text
-	command := strings.Split(messageText, " ")[0]
-	switch command {
-	case subscribeCommand:
-		handleSubscribe(update)
-	case unsubscribeCommand:
-		handleUnsubscribe(update)
-	default:
-		log.Debug(
-			"cannot handle message",
-			"chatID",
-			chatID,
-			"update",
-			update)
-	}
-}
-
-func handleSubscribe(update tgbotapi.Update) {
-	chatID := update.Message.Chat.ID
-	text := update.Message.Text[len(subscribeCommand):]
-	log.Debug("handling "+subscribeCommand, "chatID", chatID, "text", text)
-}
-
-func handleUnsubscribe(update tgbotapi.Update) {
-	chatID := update.Message.Chat.ID
-	text := update.Message.Text[len(unsubscribeCommand):]
-	log.Debug("handling "+unsubscribeCommand, "chatID", chatID, "text", text)
-}
 
 func SendMessage(chatID int64, text string) {
 	log.Debug("sending message", "chatID", chatID, "messageText", text)
@@ -86,4 +57,63 @@ func Start(config config.Config) {
 
 		handleMessage(update)
 	}
+}
+
+func handleMessage(update tgbotapi.Update) {
+	chatID := update.Message.Chat.ID
+	log.Debug("handling message", "chatID", chatID)
+
+	messageText := update.Message.Text
+	command := strings.Split(messageText, " ")[0]
+
+	switch command {
+	case subscribeCommand:
+		handleSubscribe(update)
+	case unsubscribeCommand:
+		handleUnsubscribe(update)
+	default:
+		log.Debug(
+			"cannot handle message",
+			"chatID",
+			chatID,
+			"update",
+			update)
+	}
+}
+
+func handleSubscribe(update tgbotapi.Update) {
+	handleCommand(update, subscribeCommand)
+}
+
+func handleUnsubscribe(update tgbotapi.Update) {
+	handleCommand(update, unsubscribeCommand)
+}
+
+func handleCommand(update tgbotapi.Update, command string) {
+	chatID := update.Message.Chat.ID
+	text := update.Message.Text[len(command):]
+	log.Debug("handling "+command, "chatID", chatID, "text", text)
+
+	fullURL := baseURL +
+		command +
+		"/" +
+		url.PathEscape(strconv.FormatInt(chatID, 10)) +
+		"/" +
+		url.PathEscape(strings.TrimSpace(text))
+
+	resp, err := http.Get(fullURL)
+	if err != nil {
+		SendMessage(update.Message.From.ID, "failed to "+command)
+		log.Error("failed to send a request", "err", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		SendMessage(update.Message.From.ID, "failed to "+command)
+		log.Error("unexpected status code", "statusCode", resp.StatusCode)
+		return
+	}
+
+	SendMessage(update.Message.From.ID, command[1:]+"bed")
 }

@@ -49,7 +49,7 @@ func Start() {
 	http.HandleFunc("/sendMessage", sendMessageHandler)
 
 	go func() {
-		if err := http.ListenAndServe(":8080", nil); err != nil {
+		if err := http.ListenAndServe(":3002", nil); err != nil {
 			log.Fatal("failed to start server", "error", err)
 		}
 	}()

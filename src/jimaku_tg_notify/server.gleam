@@ -1,26 +1,65 @@
+import gleam/bytes_builder
+import gleam/erlang/process
+import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/int
-import gleam/list
-import gleam/result
-import gleam/string
-import jimaku_tg_notify/http
-import jimaku_tg_notify/parsing
-import logging
+import jimaku_tg_notify/storage
+import mist.{type Connection, type ResponseData}
 
 pub fn run() {
-  logging.configure()
-  logging.set_level(logging.Debug)
+  let assert Ok(Nil) = storage.start()
+  let assert Ok(_) =
+    fn(req: Request(Connection)) -> Response(ResponseData) {
+      case request.path_segments(req) {
+        ["sub", ..rest] -> handle_sub(rest)
+        ["unsub", ..rest] -> handle_unsub(rest)
+        _ -> not_found()
+      }
+    }
+    |> mist.new
+    |> mist.port(3001)
+    |> mist.start_http
 
-  let assert Ok(dates) = {
-    use response <- result.map(http.get_response("https://jimaku.cc/entry/1563"))
-    string.split(response, "\n")
-    |> parsing.get_dates()
+  process.sleep_forever()
+}
+
+fn bad_request() {
+  response.new(400)
+  |> response.set_body(mist.Bytes(bytes_builder.new()))
+}
+
+fn not_found() {
+  response.new(404)
+  |> response.set_body(mist.Bytes(bytes_builder.new()))
+}
+
+fn handle_sub(args: List(String)) {
+  case args {
+    [first, second] -> {
+      let assert Ok(chat_id) = int.parse(first)
+      let assert Ok(title_id) = int.parse(second)
+
+      let _ = storage.add_user(chat_id)
+      let assert Ok(_) = storage.subscribe(chat_id, title_id, 0)
+
+      response.new(200)
+      |> response.set_body(mist.Bytes(bytes_builder.new()))
+    }
+    _ -> bad_request()
   }
+}
 
-  logging.log(
-    logging.Critical,
-    "dates amount: "
-      <> dates
-    |> list.length()
-    |> int.to_string(),
-  )
+fn handle_unsub(args: List(String)) {
+  case args {
+    [first, second] -> {
+      let assert Ok(chat_id) = int.parse(first)
+      let assert Ok(title_id) = int.parse(second)
+
+      let assert Ok(_) = storage.unsubscribe(chat_id, title_id)
+
+      response.new(200)
+      |> response.set_body(mist.Bytes(bytes_builder.new()))
+    }
+    _ -> bad_request()
+  }
 }

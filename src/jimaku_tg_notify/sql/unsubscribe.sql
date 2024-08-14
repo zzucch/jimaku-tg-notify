@@ -1,1 +1,1 @@
-delete from subscriptions where title_id = ? and user_id = ?;
+delete from subscriptions where title_id = ? and chat_id = ?;
