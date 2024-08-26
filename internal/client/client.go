@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/parse"
 )
 
@@ -15,7 +14,6 @@ func GetLatestSubtitleTimestamp(titleID int64) (int64, error) {
 	dates, err := getDates(
 		"https://jimaku.cc/entry/" + strconv.FormatInt(titleID, 10))
 	if err != nil {
-		log.Error("failed to get subtitle dates", "titleID", titleID, "err", err)
     return -1, err
 	}
 

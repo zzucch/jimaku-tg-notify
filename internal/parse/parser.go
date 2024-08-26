@@ -10,7 +10,10 @@ func parser(tokens []token) (Date, error) {
 	iter := tokens
 
 	expect := func(expected tokenType) error {
-		if len(iter) == 0 || iter[0].Type != expected {
+		if len(iter) == 0 {
+			return fmt.Errorf("expected %v, got nothing", expected)
+		}
+		if iter[0].Type != expected {
 			return fmt.Errorf("expected %v, got %v", expected, iter[0].Type)
 		}
 		iter = iter[1:]
@@ -18,8 +21,11 @@ func parser(tokens []token) (Date, error) {
 	}
 
 	getNumber := func() (int, error) {
-		if len(iter) == 0 || iter[0].Type != Num {
-			return 0, fmt.Errorf("expected number")
+		if len(iter) == 0 {
+			return 0, fmt.Errorf("expected %v, got nothing", Num)
+		}
+		if iter[0].Type != Num {
+			return 0, fmt.Errorf("expected %v, got %v", Num, iter[0].Type)
 		}
 		value := iter[0].Value
 		iter = iter[1:]

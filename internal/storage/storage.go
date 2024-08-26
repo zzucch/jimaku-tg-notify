@@ -86,3 +86,25 @@ func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	}
 	return subscriptions, nil
 }
+
+func SetLatestSubtitleTimestamp(
+	chatID,
+	titleID,
+	latestSubtitleTime int64,
+) error {
+	var subscription Subscription
+	if err := db.Where(
+		"chat_id = ? AND title_id = ?",
+		chatID,
+		titleID).First(&subscription).Error; err != nil {
+		return errors.New("subscription not found")
+	}
+
+	subscription.LatestSubtitleTime = latestSubtitleTime
+
+	if err := db.Save(&subscription).Error; err != nil {
+		return errors.New("failed to update latest subtitle timestamp")
+	}
+
+	return nil
+}
