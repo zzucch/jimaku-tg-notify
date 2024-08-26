@@ -3,6 +3,7 @@ package notify
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
@@ -52,8 +53,19 @@ func getNotificationMessage(subscription storage.Subscription) string {
 		return ""
 	}
 
-	return strconv.FormatInt(subscription.TitleID, 10) +
-		" " +
-		strconv.FormatInt(subscription.LatestSubtitleTime, 10) +
+	return "Update at jimaku.cc/entry/" +
+		strconv.FormatInt(subscription.TitleID, 10) +
+		" at time " +
+		timestampToString(subscription.LatestSubtitleTime) +
 		"\n"
+}
+
+func timestampToString(timestamp int64) string {
+	t, err := time.Unix(timestamp, 0).MarshalText()
+	if err != nil {
+		log.Error("invalid timestamp", timestamp)
+		return "[invalid time]"
+	}
+
+	return string(t)
 }

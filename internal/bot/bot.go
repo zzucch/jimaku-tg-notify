@@ -23,27 +23,26 @@ func SendMessage(chatID int64, text string) {
 
 	message := tgbotapi.NewMessage(chatID, text)
 	if _, err := bot.Send(message); err != nil {
-		log.Fatal(err)
+		log.Error("failed to send message", "err", err)
 	}
 }
 
-func Start(config config.Config) {
+func Initialize(config config.Config) error {
 	log.Debug("starting bot")
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.BotToken)
-	if err != nil {
-		log.Fatal(
-			"failed creating BotAPI instance",
-			"err",
-			err,
-			"token",
-			config.BotConfig.BotToken)
-	}
+  if err != nil {
+    return err
+  }
 
 	if config.BotDebugLevel {
 		bot.Debug = true
 	}
 
+  return nil
+}
+
+func Start() {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 60
 

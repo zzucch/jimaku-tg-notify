@@ -29,13 +29,23 @@ func main() {
 		log.Fatal("failed connecting to storage", "err", err)
 	}
 
+  err := bot.Initialize(config)
+	if err != nil {
+		log.Fatal(
+			"failed initializing bot",
+			"err",
+			err,
+			"config",
+			config)
+	}
+
 	go notificationTimer()
-	bot.Start(config)
+  bot.Start()
 }
 
 func notificationTimer() {
 	for {
-		time.Sleep(time.Second * 10)
 		notify.NotifyAll()
+		time.Sleep(time.Second * 10)
 	}
 }
