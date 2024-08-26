@@ -1,17 +1,4 @@
-# gleam
-*.beam
-*.ez
-/build
-erl_crash.dump
-
-# go
-main
-
-# direnv
 .direnv/
-
-# database
 _data/
-
-# env
 .env
+main

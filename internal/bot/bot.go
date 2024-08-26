@@ -1,14 +1,13 @@
 package bot
 
 import (
-	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
+	"github.com/zzucch/jimaku-tg-notify/internal/server"
 )
 
 var bot *tgbotapi.BotAPI
@@ -82,20 +81,24 @@ func handleMessage(update tgbotapi.Update) {
 }
 
 func handleSubscribe(update tgbotapi.Update) {
-	handleCommand(update, subscribeCommand)
+	handleSubscription(update, subscribeCommand, server.Subscribe)
 }
 
 func handleUnsubscribe(update tgbotapi.Update) {
-	handleCommand(update, unsubscribeCommand)
+	handleSubscription(update, unsubscribeCommand, server.Unsubscribe)
 }
 
-func handleCommand(update tgbotapi.Update, command string) {
+func handleSubscription(
+	update tgbotapi.Update,
+	command string,
+	action func(chatID int64, titleID int64) error,
+) {
 	chatID := update.Message.Chat.ID
 	unvalidatedTitleID := update.Message.Text[len(command):]
 	log.Debug("handling "+command, "chatID", chatID, "text", unvalidatedTitleID)
 
 	unvalidatedTitleID = strings.TrimSpace(unvalidatedTitleID)
-	_, err := strconv.Atoi(unvalidatedTitleID)
+	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
 	if unvalidatedTitleID == "" || err != nil {
 		log.Debug(
 			"failed to handle - invalid titleID",
@@ -108,24 +111,8 @@ func handleCommand(update tgbotapi.Update, command string) {
 		return
 	}
 
-	fullURL := baseURL +
-		command +
-		"/" +
-		url.PathEscape(strconv.FormatInt(chatID, 10)) +
-		"/" +
-		url.PathEscape(unvalidatedTitleID)
-
-	resp, err := http.Get(fullURL)
-	if err != nil {
-		SendMessage(update.Message.From.ID, "failed to "+command)
-		log.Error("failed to send a request", "err", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		SendMessage(update.Message.From.ID, "failed to "+command)
-		log.Error("unexpected status code", "statusCode", resp.StatusCode)
+	if err := action(chatID, titleID); err != nil {
+		SendMessage(update.Message.From.ID, "failed to process request")
 		return
 	}
 

@@ -24,13 +24,11 @@
     devShells = forEachSupportedSystem ({pkgs}: {
       default = pkgs.mkShell {
         packages = with pkgs; [
-          gleam
-          erlang_nox
-          rebar3
-
           go
           gotools
           golangci-lint
+
+          sqlite
 
           alejandra
         ];
