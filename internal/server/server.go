@@ -14,11 +14,14 @@ func Subscribe(chatID int64, titleID int64) error {
 	}
 
 	err = storage.AddUser(chatID)
-  if err != nil {
-    log.Debug("failed to add user", "err", err)
-  }
+	if err != nil {
+		log.Debug("failed to add user", "err", err)
+	}
 
-	if err := storage.Subscribe(chatID, titleID, latestSubtitleTime); err != nil {
+	if err := storage.Subscribe(
+		chatID,
+		titleID,
+		latestSubtitleTime); err != nil {
 		log.Error(
 			"failed to subscribe",
 			"chatID",
@@ -49,4 +52,19 @@ func Unsubscribe(chatID int64, titleID int64) error {
 	}
 
 	return nil
+}
+
+func ListSubscriptions(chatID int64) ([]storage.Subscription, error) {
+	subscriptions, err := storage.GetAllSubscriptions(chatID)
+  if err != nil {
+		log.Error(
+			"failed to get all subscriptions",
+			"chatID",
+			chatID,
+			"err",
+			err)
+		return nil, err
+	}
+
+	return subscriptions, nil
 }

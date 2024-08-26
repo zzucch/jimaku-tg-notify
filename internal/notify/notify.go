@@ -3,16 +3,16 @@ package notify
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
+	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
 func NotifyAll() {
-	log.Debug("notifying")
+	log.Info("notifying")
 	chatIDs, err := storage.GetAllChatIDs()
 	if err != nil {
 		log.Fatal("failed to get all chat ids", "err", err)
@@ -56,16 +56,7 @@ func getNotificationMessage(subscription storage.Subscription) string {
 	return "Update at jimaku.cc/entry/" +
 		strconv.FormatInt(subscription.TitleID, 10) +
 		" at time " +
-		timestampToString(subscription.LatestSubtitleTime) +
+		util.TimestampToString(subscription.LatestSubtitleTime) +
 		"\n"
 }
 
-func timestampToString(timestamp int64) string {
-	t, err := time.Unix(timestamp, 0).MarshalText()
-	if err != nil {
-		log.Error("invalid timestamp", timestamp)
-		return "[invalid time]"
-	}
-
-	return string(t)
-}

@@ -61,12 +61,10 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 }
 
 func Unsubscribe(chatID, titleID int64) error {
-
 	if err := db.Delete(&Subscription{}, "title_id = ? AND chat_id = ?", titleID, chatID).Error; err != nil {
 		return errors.New("failed to unsubscribe")
 	}
 	return nil
-
 }
 
 func GetAllChatIDs() ([]int64, error) {
