@@ -38,7 +38,12 @@ func Initialize(config config.Config) (Bot, error) {
 		bot.Debug = true
 	}
 
-	return Bot{bot, server.Server{*client.NewClient(config.APIKey)}}, nil
+	return Bot{
+		bot,
+		server.Server{
+			Client: *client.NewClient(config.APIKey),
+		},
+	}, nil
 }
 
 func (b *Bot) Start() {

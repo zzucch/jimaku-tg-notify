@@ -122,7 +122,7 @@ func Unsubscribe(chatID, titleID int64) error {
 		titleID,
 		chatID).First(&subscription).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("no subscription found to unsubscribe from")
+		return errors.New("no such subscription")
 	} else if err != nil {
 		return errors.New("failed to unsubscribe")
 	}
