@@ -1,13 +1,10 @@
 package main
 
 import (
-	"time"
-
 	"github.com/charmbracelet/log"
 	"github.com/joho/godotenv"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
-	"github.com/zzucch/jimaku-tg-notify/internal/notify"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
@@ -29,23 +26,10 @@ func main() {
 		log.Fatal("failed connecting to storage", "err", err)
 	}
 
-  err := bot.Initialize(config)
+	b, err := bot.Initialize(config)
 	if err != nil {
-		log.Fatal(
-			"failed initializing bot",
-			"err",
-			err,
-			"config",
-			config)
+		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	go notificationTimer()
-  bot.Start()
-}
-
-func notificationTimer() {
-	for {
-		notify.NotifyAll()
-		time.Sleep(time.Second * 10)
-	}
+	b.Start()
 }

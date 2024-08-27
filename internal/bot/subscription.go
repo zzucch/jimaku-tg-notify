@@ -5,18 +5,17 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/zzucch/jimaku-tg-notify/internal/server"
 )
 
-func handleSubscribe(update tgbotapi.Update) {
-	handleSubscription(update, subscribeCommand, server.Subscribe)
+func (b *Bot) handleSubscribe(update tgbotapi.Update) {
+	b.handleSubscription(update, subscribeCommand, b.server.Subscribe)
 }
 
-func handleUnsubscribe(update tgbotapi.Update) {
-	handleSubscription(update, unsubscribeCommand, server.Unsubscribe)
+func (b *Bot) handleUnsubscribe(update tgbotapi.Update) {
+	b.handleSubscription(update, unsubscribeCommand, b.server.Unsubscribe)
 }
 
-func handleSubscription(
+func (b *Bot) handleSubscription(
 	update tgbotapi.Update,
 	command string,
 	action func(chatID int64, titleID int64) error,
@@ -28,14 +27,14 @@ func handleSubscription(
 
 	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
 	if unvalidatedTitleID == "" || err != nil {
-		SendMessage(chatID, "invalid command")
+		b.SendMessage(chatID, "invalid command")
 		return
 	}
 
 	if err := action(chatID, titleID); err != nil {
-		SendMessage(update.Message.From.ID, "failed to process")
+		b.SendMessage(update.Message.From.ID, "failed to process")
 		return
 	}
 
-	SendMessage(update.Message.From.ID, "done")
+	b.SendMessage(update.Message.From.ID, "done")
 }

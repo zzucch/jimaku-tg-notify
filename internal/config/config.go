@@ -6,17 +6,22 @@ import (
 )
 
 type Config struct {
-  LogConfig
+	LogConfig
 	BotConfig
+	APIConfig
 }
 
 type LogConfig struct {
-	DebugLevel bool `env:"DEBUG_LOG,required"`
+	DebugLevel    bool `env:"DEBUG_LOG,required"`
 	BotDebugLevel bool `env:"BOT_DEBUG_LOG,required"`
 }
 
 type BotConfig struct {
 	BotToken string `env:"BOT_TOKEN,required"`
+}
+
+type APIConfig struct {
+	APIKey string `env:"API_KEY,required"`
 }
 
 func ParseEnvConfig() Config {

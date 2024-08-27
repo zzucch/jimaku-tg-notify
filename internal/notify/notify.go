@@ -3,6 +3,7 @@ package notify
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
@@ -11,45 +12,60 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
-func NotifyAll() {
-	log.Info("notifying")
-	chatIDs, err := storage.GetAllChatIDs()
-	if err != nil {
-		log.Fatal("failed to get all chat ids", "err", err)
-	}
-
-	for _, chatID := range chatIDs {
-		var notificationMessageSB strings.Builder
-
-		subscriptions, err := storage.GetAllSubscriptions(chatID)
-		if err != nil {
-			log.Fatal("failed to get all subscriptions", "chatID", chatID, "err", err)
-		}
-
-		for _, subscription := range subscriptions {
-			notificationMessageSB.WriteString(getNotificationMessage(subscription))
-		}
-
-		if notificationMessageSB.Len() == 0 {
-			continue
-		}
-
-		bot.SendMessage(chatID, notificationMessageSB.String())
-	}
+type Command struct {
+	ChatID      int64
+	NewInterval time.Duration
 }
 
-func getNotificationMessage(subscription storage.Subscription) string {
-	latest, err := client.GetLatestSubtitleTimestamp(subscription.TitleID)
+func Notify(
+	chatID int64,
+	bot *bot.Bot,
+	client *client.Client,
+) {
+	var notificationMessageSB strings.Builder
+
+	subscriptions, err := storage.GetAllSubscriptions(chatID)
 	if err != nil {
-		log.Error(
-			"failed to get latest subtitle timestamp",
-			"subscription",
-			subscription,
+		bot.SendMessage(
+			chatID,
+			"failed due to critical error - contact developers")
+
+		log.Fatal(
+			"failed to get all subscriptions",
+			"chatID",
+			chatID,
 			"err",
 			err)
 	}
 
-	if subscription.LatestSubtitleTime == latest {
+	for _, subscription := range subscriptions {
+		notificationMessageSB.WriteString(
+			getNotificationMessage(subscription, client))
+	}
+
+	if notificationMessageSB.Len() == 0 {
+		return
+	}
+
+	bot.SendMessage(chatID, notificationMessageSB.String())
+}
+
+func getNotificationMessage(
+	subscription storage.Subscription,
+	client *client.Client,
+) string {
+	latestSubtitleTime, err := client.GetLatestSubtitle(subscription.TitleID)
+	if err != nil {
+		log.Error("failed to get latest subtitle date",
+			"titleID",
+			subscription.TitleID,
+			"err",
+			err)
+
+		return "failed to get latest subtitle date"
+	}
+
+	if subscription.LatestSubtitleTime == latestSubtitleTime {
 		return ""
 	}
 
@@ -59,4 +75,3 @@ func getNotificationMessage(subscription storage.Subscription) string {
 		util.TimestampToString(subscription.LatestSubtitleTime) +
 		"\n"
 }
-

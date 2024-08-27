@@ -4,7 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleHelp(update tgbotapi.Update) {
+func (b *Bot) handleHelp(update tgbotapi.Update) {
 	helpMessage :=
 		`
 Available commands:
@@ -18,5 +18,5 @@ Subscribe to all updates on given title
 Unsubscribe from given title
 `
 
-	SendMessage(update.Message.From.ID, helpMessage)
+	b.SendMessage(update.Message.From.ID, helpMessage)
 }

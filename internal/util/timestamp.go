@@ -15,3 +15,12 @@ func TimestampToString(timestamp int64) string {
 
 	return string(t)
 }
+
+func RFC3339ToUnixTimestamp(rfc3339time string) (int64, error) {
+	t, err := time.Parse(time.RFC3339, rfc3339time)
+	if err != nil {
+		return 0, err
+	}
+
+	return t.Unix(), nil
+}

@@ -6,10 +6,19 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
-func Subscribe(chatID int64, titleID int64) error {
-	latestSubtitleTime, err := client.GetLatestSubtitleTimestamp(titleID)
+type Server struct {
+	client.Client
+}
+
+func (s *Server) Subscribe(chatID int64, titleID int64) error {
+	latestSubtitleTime, err := s.Client.GetLatestSubtitle(titleID)
 	if err != nil {
-		log.Error("failed to get subtitle dates", "titleID", titleID, "err", err)
+		log.Error("failed to get latest subtitle date",
+			"titleID",
+			titleID,
+			"err",
+			err)
+
 		return err
 	}
 
@@ -32,13 +41,14 @@ func Subscribe(chatID int64, titleID int64) error {
 			latestSubtitleTime,
 			"err",
 			err)
+
 		return err
 	}
 
 	return nil
 }
 
-func Unsubscribe(chatID int64, titleID int64) error {
+func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
 	if err := storage.Unsubscribe(chatID, titleID); err != nil {
 		log.Error(
 			"failed to unsubscribe",
@@ -54,9 +64,11 @@ func Unsubscribe(chatID int64, titleID int64) error {
 	return nil
 }
 
-func ListSubscriptions(chatID int64) ([]storage.Subscription, error) {
+func (s *Server) ListSubscriptions(
+	chatID int64,
+) ([]storage.Subscription, error) {
 	subscriptions, err := storage.GetAllSubscriptions(chatID)
-  if err != nil {
+	if err != nil {
 		log.Error(
 			"failed to get all subscriptions",
 			"chatID",

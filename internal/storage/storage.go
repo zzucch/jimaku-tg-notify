@@ -11,8 +11,11 @@ import (
 const dataDir = "./_data"
 const connection = "./_data/sqlite.db"
 
+const defaultInterval = 6
+
 type User struct {
-	ChatID int64 `gorm:"primaryKey"`
+	ChatID               int64 `gorm:"primaryKey"`
+	NotificationInterval int   `gorm:"primaryKey"`
 }
 
 type Subscription struct {
@@ -42,8 +45,33 @@ func Start() error {
 }
 
 func AddUser(chatID int64) error {
-	user := User{ChatID: chatID}
+	user := User{
+		ChatID:               chatID,
+		NotificationInterval: defaultInterval,
+	}
 	return db.Create(&user).Error
+}
+
+func SetNotificationInterval(chatID int64, interval int) error {
+	if interval <= 0 {
+		return errors.New("notification interval must be greater than 0")
+	}
+
+	var user User
+	if err := db.First(
+    &user,
+    "chat_id = ?",
+    chatID).Error; err != nil {
+		return errors.New("user not found")
+	}
+
+	user.NotificationInterval = interval
+
+	if err := db.Save(&user).Error; err != nil {
+		return errors.New("failed to update notification interval")
+	}
+
+	return nil
 }
 
 func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
@@ -61,7 +89,11 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 }
 
 func Unsubscribe(chatID, titleID int64) error {
-	if err := db.Delete(&Subscription{}, "title_id = ? AND chat_id = ?", titleID, chatID).Error; err != nil {
+	if err := db.Delete(
+		&Subscription{},
+		"title_id = ? AND chat_id = ?",
+		titleID,
+		chatID).Error; err != nil {
 		return errors.New("failed to unsubscribe")
 	}
 	return nil
@@ -69,7 +101,9 @@ func Unsubscribe(chatID, titleID int64) error {
 
 func GetAllChatIDs() ([]int64, error) {
 	var chatIDs []int64
-	if err := db.Model(&User{}).Pluck("chat_id", &chatIDs).Error; err != nil {
+	if err := db.Model(&User{}).Pluck(
+		"chat_id",
+		&chatIDs).Error; err != nil {
 		return nil, errors.New("failed to get subscriptions")
 	}
 	return chatIDs, nil

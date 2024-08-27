@@ -5,17 +5,16 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/zzucch/jimaku-tg-notify/internal/server"
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
-func handleSubscriptionList(update tgbotapi.Update) {
+func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	chatID := update.Message.From.ID
 
 	var messageSB strings.Builder
-	subscriptions, err := server.ListSubscriptions(chatID)
+	subscriptions, err := b.server.ListSubscriptions(chatID)
 	if err != nil {
-		SendMessage(chatID, "failed to process")
+		b.SendMessage(chatID, "failed to process")
 	}
 
 	if len(subscriptions) == 0 {
@@ -35,5 +34,5 @@ func handleSubscriptionList(update tgbotapi.Update) {
 			util.TimestampToString(subscription.LatestSubtitleTime))
 	}
 
-	SendMessage(chatID, messageSB.String())
+	b.SendMessage(chatID, messageSB.String())
 }
