@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 const dataDir = "./_data"
@@ -28,11 +29,14 @@ var db *gorm.DB
 
 func Start() error {
 	var err error
+
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
 		return err
 	}
 
-	db, err = gorm.Open(sqlite.Open(connection), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open(connection), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		return err
 	}
@@ -45,10 +49,20 @@ func Start() error {
 }
 
 func AddUser(chatID int64) error {
+	var existingUser User
+
+	err := db.Where("chat_id = ?", chatID).First(&existingUser).Error
+	if err == nil {
+		return nil
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
 	user := User{
 		ChatID:               chatID,
 		NotificationInterval: defaultInterval,
 	}
+
 	return db.Create(&user).Error
 }
 
@@ -59,9 +73,9 @@ func SetNotificationInterval(chatID int64, interval int) error {
 
 	var user User
 	if err := db.First(
-    &user,
-    "chat_id = ?",
-    chatID).Error; err != nil {
+		&user,
+		"chat_id = ?",
+		chatID).Error; err != nil {
 		return errors.New("user not found")
 	}
 
@@ -75,6 +89,18 @@ func SetNotificationInterval(chatID int64, interval int) error {
 }
 
 func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
+	var existingSubscription Subscription
+
+	err := db.Where(
+		"chat_id = ? AND title_id = ?",
+		chatID,
+		titleID).First(&existingSubscription).Error
+	if err == nil {
+		return errors.New("already subscribed")
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("failed to subscribe")
+	}
+
 	subscription := Subscription{
 		TitleID:            titleID,
 		ChatID:             chatID,
@@ -89,6 +115,18 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 }
 
 func Unsubscribe(chatID, titleID int64) error {
+	var subscription Subscription
+
+	err := db.Where(
+		"title_id = ? AND chat_id = ?",
+		titleID,
+		chatID).First(&subscription).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("no subscription found to unsubscribe from")
+	} else if err != nil {
+		return errors.New("failed to unsubscribe")
+	}
+
 	if err := db.Delete(
 		&Subscription{},
 		"title_id = ? AND chat_id = ?",
@@ -96,11 +134,13 @@ func Unsubscribe(chatID, titleID int64) error {
 		chatID).Error; err != nil {
 		return errors.New("failed to unsubscribe")
 	}
+
 	return nil
 }
 
 func GetAllChatIDs() ([]int64, error) {
 	var chatIDs []int64
+
 	if err := db.Model(&User{}).Pluck(
 		"chat_id",
 		&chatIDs).Error; err != nil {
@@ -111,6 +151,7 @@ func GetAllChatIDs() ([]int64, error) {
 
 func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	var subscriptions []Subscription
+
 	if err := db.Where(
 		"chat_id = ?",
 		chatID).Find(&subscriptions).Error; err != nil {
@@ -125,6 +166,7 @@ func SetLatestSubtitleTimestamp(
 	latestSubtitleTime int64,
 ) error {
 	var subscription Subscription
+
 	if err := db.Where(
 		"chat_id = ? AND title_id = ?",
 		chatID,
