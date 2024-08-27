@@ -3,14 +3,13 @@ package bot
 import (
 	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
 	"github.com/zzucch/jimaku-tg-notify/internal/server"
 )
 
 type Bot struct {
 	botAPI *tgbotapi.BotAPI
-	server server.Server
+	server *server.Server
 }
 
 const (
@@ -26,23 +25,21 @@ func (b *Bot) SendMessage(chatID int64, text string) {
 	}
 }
 
-func Initialize(config config.Config) (Bot, error) {
+func Initialize(config config.Config, server *server.Server) (*Bot, error) {
 	log.Info("starting bot")
 	var err error
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
-		return Bot{}, err
+		return &Bot{}, err
 	}
 
 	if config.BotDebugLevel {
 		bot.Debug = true
 	}
 
-	return Bot{
-		bot,
-		server.Server{
-			Client: *client.NewClient(config.APIKey),
-		},
+	return &Bot{
+    botAPI: bot,
+    server: server,
 	}, nil
 }
 

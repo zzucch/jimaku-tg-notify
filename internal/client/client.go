@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 	"golang.org/x/time/rate"
 )
@@ -79,6 +80,7 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 }
 
 func (c *Client) getResponse(url string) (string, error) {
+	log.Debug("making request")
 	if err := c.limiter.Wait(context.Background()); err != nil {
 		return "", err
 	}

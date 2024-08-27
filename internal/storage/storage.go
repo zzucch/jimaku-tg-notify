@@ -138,15 +138,14 @@ func Unsubscribe(chatID, titleID int64) error {
 	return nil
 }
 
-func GetAllChatIDs() ([]int64, error) {
-	var chatIDs []int64
+func GetAllUsers() ([]User, error) {
+	var users []User
 
-	if err := db.Model(&User{}).Pluck(
-		"chat_id",
-		&chatIDs).Error; err != nil {
-		return nil, errors.New("failed to get subscriptions")
+	if err := db.Model(&User{}).Find(&users).Error; err != nil {
+		return nil, errors.New("failed to get users")
 	}
-	return chatIDs, nil
+
+	return users, nil
 }
 
 func GetAllSubscriptions(chatID int64) ([]Subscription, error) {

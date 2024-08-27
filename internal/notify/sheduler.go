@@ -37,15 +37,15 @@ func (ns *NotifyScheduler) Start(
 
 		for {
 			select {
-			case <-ticker.C:
-				Notify(chatID, bot, client)
+			case <-ns.stopCh:
+				return
 			case cmd := <-ns.commandCh:
 				if cmd.ChatID == chatID {
 					ticker.Stop()
 					ticker = time.NewTicker(cmd.NewInterval)
 				}
-			case <-ns.stopCh:
-				return
+			case <-ticker.C:
+				Notify(chatID, bot, client)
 			}
 		}
 	}()

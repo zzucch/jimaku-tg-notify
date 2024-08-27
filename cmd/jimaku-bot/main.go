@@ -1,10 +1,15 @@
 package main
 
 import (
+	"time"
+
 	"github.com/charmbracelet/log"
 	"github.com/joho/godotenv"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
+	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
+	"github.com/zzucch/jimaku-tg-notify/internal/notify"
+	"github.com/zzucch/jimaku-tg-notify/internal/server"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
@@ -26,10 +31,33 @@ func main() {
 		log.Fatal("failed connecting to storage", "err", err)
 	}
 
-	b, err := bot.Initialize(config)
+	users, err := storage.GetAllUsers()
+	if err != nil {
+		log.Fatal("failed getting users", "err", err)
+	}
+
+	client := client.NewClient(config.APIKey)
+
+	chatIDs := make([]int64, 0, len(users))
+	for _, user := range users {
+		chatIDs = append(chatIDs, user.ChatID)
+	}
+
+	server := server.NewServer(chatIDs, client)
+
+	bot, err := bot.Initialize(config, server)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	b.Start()
+	manager := notify.NewNotifyManager(bot, client)
+
+	log.Debug(users)
+	for _, user := range users {
+		manager.AddScheduler(
+			user.ChatID,
+			time.Duration(int(time.Hour)*user.NotificationInterval))
+	}
+
+	bot.Start()
 }
