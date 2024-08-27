@@ -3,7 +3,6 @@ package notify
 import (
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
@@ -11,11 +10,6 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
-
-type Command struct {
-	ChatID      int64
-	NewInterval time.Duration
-}
 
 func Notify(
 	chatID int64,

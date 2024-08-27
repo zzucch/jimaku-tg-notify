@@ -12,7 +12,7 @@ type Config struct {
 }
 
 type LogConfig struct {
-	DebugLevel    bool `env:"DEBUG_LOG,required"`
+	LogDebugLevel bool `env:"DEBUG_LOG,required"`
 	BotDebugLevel bool `env:"BOT_DEBUG_LOG,required"`
 }
 

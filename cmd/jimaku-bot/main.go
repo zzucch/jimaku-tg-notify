@@ -16,7 +16,7 @@ func init() {
 
 func main() {
 	config := config.ParseEnvConfig()
-	if config.DebugLevel {
+	if config.LogDebugLevel {
 		log.SetLevel(log.DebugLevel)
 	}
 
