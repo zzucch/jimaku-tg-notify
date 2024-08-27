@@ -3,7 +3,6 @@ package notify
 import (
 	"time"
 
-	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 )
 
@@ -28,7 +27,7 @@ func NewNotifyScheduler(interval time.Duration) *NotifyScheduler {
 
 func (ns *NotifyScheduler) Start(
 	chatID int64,
-	bot *bot.Bot,
+	notificationCh chan Notification,
 	client *client.Client,
 ) {
 	go func() {
@@ -45,7 +44,7 @@ func (ns *NotifyScheduler) Start(
 					ticker = time.NewTicker(cmd.NewInterval)
 				}
 			case <-ticker.C:
-				Notify(chatID, bot, client)
+				Notify(chatID, notificationCh, client)
 			}
 		}
 	}()

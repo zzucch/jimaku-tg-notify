@@ -4,12 +4,14 @@ import (
 	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
+	"github.com/zzucch/jimaku-tg-notify/internal/notify"
 	"github.com/zzucch/jimaku-tg-notify/internal/server"
 )
 
 type Bot struct {
-	botAPI *tgbotapi.BotAPI
-	server *server.Server
+	botAPI         *tgbotapi.BotAPI
+	server         *server.Server
+	notificationCh chan notify.Notification
 }
 
 const (
@@ -25,7 +27,11 @@ func (b *Bot) SendMessage(chatID int64, text string) {
 	}
 }
 
-func Initialize(config config.Config, server *server.Server) (*Bot, error) {
+func Initialize(
+	config config.Config,
+	server *server.Server,
+	notificationCh chan notify.Notification,
+) (*Bot, error) {
 	log.Info("starting bot")
 	var err error
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
@@ -38,12 +44,15 @@ func Initialize(config config.Config, server *server.Server) (*Bot, error) {
 	}
 
 	return &Bot{
-    botAPI: bot,
-    server: server,
+		botAPI:         bot,
+		server:         server,
+		notificationCh: notificationCh,
 	}, nil
 }
 
 func (b *Bot) Start() {
+	go b.handleNotifications()
+
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 60
 
@@ -55,5 +64,11 @@ func (b *Bot) Start() {
 		}
 
 		b.handleMessage(update)
+	}
+}
+
+func (b *Bot) handleNotifications() {
+	for notification := range b.notificationCh {
+		b.SendMessage(notification.ChatID, notification.Message)
 	}
 }

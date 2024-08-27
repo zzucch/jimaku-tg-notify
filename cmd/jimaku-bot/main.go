@@ -45,12 +45,14 @@ func main() {
 
 	server := server.NewServer(chatIDs, client)
 
-	bot, err := bot.Initialize(config, server)
+  notificationCh := make(chan notify.Notification, 1000)
+
+	bot, err := bot.Initialize(config, server, notificationCh)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	manager := notify.NewNotifyManager(bot, client)
+	manager := notify.NewNotifyManager(notificationCh, client)
 
 	log.Debug(users)
 	for _, user := range users {

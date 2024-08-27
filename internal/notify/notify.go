@@ -5,24 +5,29 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
+type Notification struct {
+	ChatID  int64
+	Message string
+}
+
 func Notify(
 	chatID int64,
-	bot *bot.Bot,
+	notificationCh chan Notification,
 	client *client.Client,
 ) {
 	var notificationMessageSB strings.Builder
 
 	subscriptions, err := storage.GetAllSubscriptions(chatID)
 	if err != nil {
-		bot.SendMessage(
-			chatID,
-			"failed due to critical error - contact developers")
+		notificationCh <- Notification{
+			ChatID:  chatID,
+			Message: "failed due to critical error - contact developers",
+		}
 
 		log.Fatal(
 			"failed to get all subscriptions",
@@ -41,7 +46,10 @@ func Notify(
 		return
 	}
 
-	bot.SendMessage(chatID, notificationMessageSB.String())
+	notificationCh <- Notification{
+		ChatID:  chatID,
+		Message: notificationMessageSB.String(),
+	}
 }
 
 func getNotificationMessage(
