@@ -41,7 +41,8 @@ func (ns *NotifyScheduler) Start(
 			case cmd := <-ns.commandCh:
 				if cmd.ChatID == chatID {
 					ticker.Stop()
-					ticker = time.NewTicker(cmd.NewInterval)
+					ns.interval = cmd.NewInterval
+					ticker = time.NewTicker(ns.interval)
 				}
 			case <-ticker.C:
 				Notify(chatID, notificationCh, client)
