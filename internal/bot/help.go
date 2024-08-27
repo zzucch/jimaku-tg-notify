@@ -16,6 +16,10 @@ Subscribe to all updates on given title
 
 /unsub [title_id]
 Unsubscribe from given title
+
+/interval [hours]
+Set current notification interval to given amount of hours.
+Default value is 6 hours
 `
 
 	b.SendMessage(update.Message.From.ID, helpMessage)

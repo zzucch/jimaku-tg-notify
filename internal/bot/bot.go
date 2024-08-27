@@ -18,6 +18,7 @@ const (
 	listCommand        = "/list"
 	subscribeCommand   = "/sub"
 	unsubscribeCommand = "/unsub"
+	intervalCommand    = "/interval"
 )
 
 func (b *Bot) SendMessage(chatID int64, text string) {

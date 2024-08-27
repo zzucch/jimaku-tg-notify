@@ -83,6 +83,7 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
 			titleID,
 			"err",
 			err)
+
 		return err
 	}
 
@@ -100,8 +101,28 @@ func (s *Server) ListSubscriptions(
 			chatID,
 			"err",
 			err)
+
 		return nil, err
 	}
 
 	return subscriptions, nil
+}
+
+func (s *Server) SetInterval(
+	chatID int64,
+	interval int,
+) error {
+	err := storage.SetNotificationInterval(chatID, interval)
+	if err != nil {
+		log.Error(
+			"failed to set interval",
+			"chatID",
+			chatID,
+			"err",
+			err)
+
+		return err
+	}
+
+	return nil
 }
