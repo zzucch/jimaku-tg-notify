@@ -31,6 +31,8 @@ func (ns *NotifyScheduler) Start(
 	client *client.Client,
 ) {
 	go func() {
+		Notify(chatID, notificationCh, client)
+
 		ticker := time.NewTicker(ns.interval)
 		defer ticker.Stop()
 
