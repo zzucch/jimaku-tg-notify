@@ -12,13 +12,13 @@ Available commands:
 List all subscriptions
 
 /sub [title_id]
-Subscribe to all updates on given title
+Subscribe to all updates on the given title
 
 /unsub [title_id]
-Unsubscribe from given title
+Unsubscribe from the given title
 
 /interval [hours]
-Set current notification interval to given amount of hours.
+Set current notification interval to the given amount of hours
 Default value is 6 hours
 `
 

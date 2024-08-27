@@ -15,13 +15,13 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 
 	interval, err := strconv.Atoi(unvalidatedTitleID)
 	if unvalidatedTitleID == "" || err != nil {
-		b.SendMessage(chatID, "invalid command")
+		b.SendMessage(chatID, "Example usage: "+intervalCommand+" 24")
 		return
 	}
 
 	if err := b.server.SetInterval(chatID, interval); err != nil {
 		b.SendMessage(chatID, "failed to process: "+err.Error())
-    return
+		return
 	}
 
 	b.SendMessage(chatID, "done")
