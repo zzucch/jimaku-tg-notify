@@ -7,7 +7,6 @@ require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/joho/godotenv v1.5.1
-	golang.org/x/time v0.6.0
 	gorm.io/driver/sqlite v1.5.6
 	gorm.io/gorm v1.25.11
 )

@@ -1,23 +1,15 @@
 package client
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
-	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/zzucch/jimaku-tg-notify/internal/rate"
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
-	"golang.org/x/time/rate"
-)
-
-const (
-	rateLimitBurst    = 25
-	rateLimitInterval = 100 * time.Second
 )
 
 type Entry struct {
@@ -33,21 +25,17 @@ type Client struct {
 	apiKey     string
 	httpClient *http.Client
 	limiter    *rate.Limiter
-	mu         sync.Mutex
 }
 
 func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:     apiKey,
 		httpClient: &http.Client{},
-		limiter: rate.NewLimiter(
-			rate.Every(
-				rateLimitInterval/time.Duration(rateLimitBurst)),
-			rateLimitBurst),
+		limiter:    rate.NewLimiter(),
 	}
 }
 
-func (c *Client) GetLatestSubtitle(titleID int64) (int64, error) {
+func (c *Client) GetLatestSubtitleTime(titleID int64) (int64, error) {
 	entryData, err := c.GetEntryData(titleID)
 	if err != nil {
 		return 0, err
@@ -66,7 +54,7 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 	url := "https://jimaku.cc/api/entries/" +
 		strconv.FormatInt(titleID, 10)
 
-	response, err := c.getResponse(url)
+	response, err := c.getResponse(url, 5)
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +67,8 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 	return &entry, nil
 }
 
-func (c *Client) getResponse(url string) (string, error) {
-	log.Debug("making request")
-	if err := c.limiter.Wait(context.Background()); err != nil {
-		return "", err
-	}
-
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
+	c.limiter.Wait()
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -102,10 +84,29 @@ func (c *Client) getResponse(url string) (string, error) {
 	}
 	defer response.Body.Close()
 
+	if response.StatusCode == http.StatusTooManyRequests && attemptsAmount > 1 {
+		log.Warn("got 429!!!")
+		rateLimit, err := c.parseRateLimitHeaders(response)
+		if err != nil {
+			return "", err
+		}
+
+		c.updateRateLimiter(rateLimit)
+
+		return c.getResponse(url, attemptsAmount-1)
+	}
+
 	if response.StatusCode != http.StatusOK {
 		return "", errors.New(
 			"unexpected status code: " + strconv.Itoa(response.StatusCode))
 	}
+
+	rateLimit, err := c.parseRateLimitHeaders(response)
+	if err != nil {
+		return "", err
+	}
+
+	c.updateRateLimiter(rateLimit)
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {

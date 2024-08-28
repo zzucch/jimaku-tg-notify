@@ -18,7 +18,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	}
 
 	if len(subscriptions) == 0 {
-		messageSB.WriteString("You don't have any subscriptions yet! ")
+		messageSB.WriteString("You don't have any subscriptions yet!\n")
 		messageSB.WriteString("To subscribe, use ")
 		messageSB.WriteString(subscribeCommand)
 		messageSB.WriteString(" [title_id]")

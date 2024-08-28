@@ -45,7 +45,7 @@ func main() {
 
 	server := server.NewServer(chatIDs, client)
 
-  notificationCh := make(chan notify.Notification, 1000)
+	notificationCh := make(chan notify.Notification, 1000)
 
 	bot, err := bot.Initialize(config, server, notificationCh)
 	if err != nil {

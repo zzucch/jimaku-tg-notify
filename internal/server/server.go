@@ -41,7 +41,7 @@ func (s *Server) AddUser(chatID int64) error {
 }
 
 func (s *Server) Subscribe(chatID int64, titleID int64) error {
-	latestSubtitleTime, err := s.client.GetLatestSubtitle(titleID)
+	latestSubtitleTime, err := s.client.GetLatestSubtitleTime(titleID)
 	if err != nil {
 		log.Error("failed to get latest subtitle date",
 			"titleID",
