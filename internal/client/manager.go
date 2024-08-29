@@ -21,8 +21,20 @@ func (cm *ClientManager) GetClient(chatID int64) (*Client, error) {
 		c := NewClient(apiKey)
 		cm.clients.Store(chatID, c)
 
-		return c, err
+		return c, nil
 	}
 
 	return v.(*Client), nil
+}
+
+func (cm *ClientManager) UppdateApiKey(chatID int64) error {
+	apiKey, err := storage.GetApiKey(chatID)
+	if err != nil {
+		return err
+	}
+
+	c := NewClient(apiKey)
+	cm.clients.Store(chatID, c)
+
+	return nil
 }

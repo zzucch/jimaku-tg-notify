@@ -23,6 +23,8 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 		b.handleUnsubscribe(update)
 	case listCommand:
 		b.handleSubscriptionList(update)
+  case apiKeyCommand:
+    b.handleApiKeyChange(update)
 	case intervalCommand:
 		b.handleNotificationIntervalChange(update)
 	default:

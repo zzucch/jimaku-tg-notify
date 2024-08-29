@@ -18,6 +18,7 @@ const (
 	listCommand        = "/list"
 	subscribeCommand   = "/sub"
 	unsubscribeCommand = "/unsub"
+	apiKeyCommand      = "/apikey"
 	intervalCommand    = "/interval"
 )
 

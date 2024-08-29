@@ -37,3 +37,24 @@ func (s *Server) SetInterval(
 
 	return nil
 }
+
+func (s *Server) SetApiKey(
+	chatID int64,
+	apiKey string,
+) error {
+	err := storage.SetApiKey(chatID, apiKey)
+	if err != nil {
+		log.Error(
+			"failed to set api key",
+			"chatID",
+			chatID,
+			"err",
+			err)
+
+		return err
+	}
+
+	s.clientManager.UppdateApiKey(chatID)
+
+	return nil
+}

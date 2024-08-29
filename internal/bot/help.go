@@ -20,6 +20,9 @@ Unsubscribe from the given title
 /interval [hours]
 Set current notification interval to the given amount of hours
 Default value is 6 hours
+
+/apikey [key]
+Set personal api key
 `
 
 	b.SendMessage(update.Message.From.ID, helpMessage)

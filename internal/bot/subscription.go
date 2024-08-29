@@ -27,7 +27,7 @@ func (b *Bot) handleSubscription(
 
 	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
 	if unvalidatedTitleID == "" || err != nil {
-		b.SendMessage(chatID, "Example usage: "+command+" 123")
+		b.SendMessage(chatID, "Example usage:\n"+command+" 123")
 		return
 	}
 

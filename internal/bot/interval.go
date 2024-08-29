@@ -10,12 +10,12 @@ import (
 func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 	chatID := update.Message.From.ID
 
-	unvalidatedTitleID := update.Message.Text[len(intervalCommand):]
-	unvalidatedTitleID = strings.TrimSpace(unvalidatedTitleID)
+	unvalidatedInterval := update.Message.Text[len(intervalCommand):]
+	unvalidatedInterval = strings.TrimSpace(unvalidatedInterval)
 
-	interval, err := strconv.Atoi(unvalidatedTitleID)
-	if unvalidatedTitleID == "" || err != nil {
-		b.SendMessage(chatID, "Example usage: "+intervalCommand+" 24")
+	interval, err := strconv.Atoi(unvalidatedInterval)
+	if unvalidatedInterval == "" || err != nil {
+		b.SendMessage(chatID, "Example usage:\n"+intervalCommand+" 24")
 		return
 	}
 
