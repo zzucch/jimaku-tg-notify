@@ -11,26 +11,37 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 	messageText := update.Message.Text
 	command := strings.Split(messageText, " ")[0]
 
-	err := b.server.AddUser(update.Message.From.ID)
-	if err != nil {
-		log.Fatal("failed to add user", "update", update)
-	}
-
-	log.Debug(&update)
-
 	chatID := update.Message.From.ID
 
-	if !b.cache.exists(chatID) {
-		log.Debug("not exists")
+	err := b.server.AddUser(update.Message.From.ID)
+	if err != nil {
+		b.SendMessage(
+			chatID,
+			"Failed due to a critical error - contact the developers")
 
+		log.Error(
+			"failed to add user",
+			"update",
+			update,
+			"messageText",
+			messageText,
+		)
+
+		return
+	}
+
+	if !b.cache.exists(chatID) {
 		if exists, err := b.server.ValidateAPIKey(chatID); err != nil {
 			b.SendMessage(
 				chatID,
 				"Failed due to a critical error - contact the developers")
+
+			return
 		} else if exists {
 			b.cache.insert(chatID)
 		} else {
 			b.handleUnauthenticatedCommand(command, update)
+
 			return
 		}
 	}

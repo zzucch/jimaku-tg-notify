@@ -41,23 +41,24 @@ func main() {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	cm := &client.ClientManager{}
-
-	server := server.NewServer(chatIDs, cm)
-
+	updateCh := make(chan notify.Update)
 	notificationCh := make(chan notify.Notification, 1000)
+
+	cm := &client.ClientManager{}
+	server := server.NewServer(chatIDs, cm, updateCh)
 
 	bot, err := bot.NewBot(config, server, notificationCh)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	manager := notify.NewNotifyManager(notificationCh, cm)
+	nm := notify.NewNotifyManager(cm, updateCh, notificationCh)
+	go nm.WatchForUpdates()
 
 	log.Debug(users)
 
 	for _, user := range users {
-		err := manager.AddScheduler(
+		err := nm.AddScheduler(
 			user.ChatID,
 			time.Duration(int(time.Hour)*user.NotificationInterval))
 		if err != nil {

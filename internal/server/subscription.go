@@ -20,7 +20,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 
 	latestSubtitleTime, err := client.GetLatestSubtitleTime(titleID)
 	if err != nil {
-		log.Error("failed to get latest subtitle date",
+		log.Warn("failed to get latest subtitle date",
 			"titleID",
 			titleID,
 			"err",

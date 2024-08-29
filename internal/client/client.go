@@ -12,6 +12,8 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
+const attemptsAmount = 5
+
 type Entry struct {
 	ID           int64  `json:"id"`
 	Name         string `json:"name"`
@@ -54,7 +56,7 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 	url := "https://jimaku.cc/api/entries/" +
 		strconv.FormatInt(titleID, 10)
 
-	response, err := c.getResponse(url, 5)
+	response, err := c.getResponse(url, attemptsAmount)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +87,14 @@ func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode == http.StatusTooManyRequests && attemptsAmount > 1 {
-		log.Warn("got 429!!!")
+		log.Warn(
+			"too many requests",
+			"url",
+			url,
+			"attempts left",
+			attemptsAmount,
+		)
+
 		rateLimit, err := c.parseRateLimitHeaders(response)
 		if err != nil {
 			return "", err
@@ -101,7 +110,11 @@ func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
 			strconv.Itoa(response.StatusCode)
 
 		if response.StatusCode == http.StatusUnauthorized {
-			message += "\nConsider checking your API key"
+			message = "Consider checking your API key"
+		}
+
+		if response.StatusCode == http.StatusNotFound {
+			message = "The subtitles don't exist"
 		}
 
 		return "", errors.New(message)

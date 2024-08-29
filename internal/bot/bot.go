@@ -35,8 +35,6 @@ func NewBot(
 	server *server.Server,
 	notificationCh chan notify.Notification,
 ) (*Bot, error) {
-	log.Info("starting bot")
-
 	var err error
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
@@ -55,6 +53,8 @@ func NewBot(
 }
 
 func (b *Bot) Start() {
+	log.Info("starting bot")
+
 	go b.handleNotifications()
 
 	updateConfig := tgbotapi.NewUpdate(0)

@@ -29,7 +29,7 @@ func Notify(
 			Message: "Failed due to a critical error - contact the developers",
 		}
 
-		log.Fatal(
+		log.Error(
 			"failed to get all subscriptions",
 			"chatID",
 			chatID,
@@ -58,7 +58,8 @@ func getNotificationMessage(
 ) string {
 	latestSubtitleTime, err := client.GetLatestSubtitleTime(subscription.TitleID)
 	if err != nil {
-		log.Error("failed to get latest subtitle date",
+		log.Warn(
+			"failed to get latest subtitle date",
 			"titleID",
 			subscription.TitleID,
 			"err",

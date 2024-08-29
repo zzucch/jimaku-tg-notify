@@ -12,14 +12,14 @@ type User struct {
 	APIKey               string
 }
 
-func AddUser(chatID int64) error {
+func AddOrGetUser(chatID int64) (User, error) {
 	var existingUser User
 
 	err := db.Where("chat_id = ?", chatID).First(&existingUser).Error
 	if err == nil {
-		return nil
+		return existingUser, nil
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+		return existingUser, err
 	}
 
 	user := User{
@@ -28,7 +28,7 @@ func AddUser(chatID int64) error {
 		APIKey:               defaultApiKey,
 	}
 
-	return db.Create(&user).Error
+	return user, db.Create(&user).Error
 }
 
 func SetAPIKey(chatID int64, apiKey string) error {

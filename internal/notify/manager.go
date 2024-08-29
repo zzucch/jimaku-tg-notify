@@ -4,22 +4,25 @@ import (
 	"sync"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 )
 
 type NotifyManager struct {
 	schedulers     sync.Map
-	notificationCh chan Notification
 	clientManager  *client.ClientManager
+	updateCh       chan Update
+	notificationCh chan Notification
 }
 
 func NewNotifyManager(
-	notificationCh chan Notification,
 	clientManager *client.ClientManager,
+	updateCh chan Update,
+	notificationCh chan Notification,
 ) *NotifyManager {
 	return &NotifyManager{
-		schedulers:     sync.Map{},
 		clientManager:  clientManager,
+		updateCh:       updateCh,
 		notificationCh: notificationCh,
 	}
 }
@@ -28,6 +31,7 @@ func (nm *NotifyManager) AddScheduler(
 	chatID int64,
 	interval time.Duration,
 ) error {
+	log.Debug("adding scheduler!")
 	if scheduler, exists := nm.schedulers.Load(chatID); exists {
 		scheduler.(*NotifyScheduler).UpdateInterval(chatID, interval)
 

@@ -1,7 +1,10 @@
 package server
 
 import (
+	"time"
+
 	"github.com/charmbracelet/log"
+	"github.com/zzucch/jimaku-tg-notify/internal/notify"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
@@ -11,9 +14,14 @@ func (s *Server) AddUser(chatID int64) error {
 		return nil
 	}
 
-	err := storage.AddUser(chatID)
+	user, err := storage.AddOrGetUser(chatID)
 	if err != nil {
 		return err
+	}
+
+	s.updateCh <- notify.Update{
+    ChatID:   user.ChatID,
+		Interval: time.Duration(user.NotificationInterval * int(time.Hour)),
 	}
 
 	return nil
