@@ -7,7 +7,7 @@ import (
 )
 
 func TimestampToString(timestamp int64) string {
-	t, err := time.Unix(timestamp, 0).MarshalText()
+	t, err := time.Unix(timestamp, 0).UTC().MarshalText()
 	if err != nil {
 		log.Error(
 			"cannot convert timestamp to string",
