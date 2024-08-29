@@ -56,8 +56,6 @@ func main() {
 	nm := notify.NewNotifyManager(cm, updateCh, notificationCh)
 	go nm.WatchForUpdates()
 
-	log.Debug(users)
-
 	for _, user := range users {
 		err := nm.AddScheduler(
 			user.ChatID,
