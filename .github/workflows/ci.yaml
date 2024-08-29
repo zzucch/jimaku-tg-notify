@@ -1,0 +1,46 @@
+name: Go Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Nixpkgs input
+        uses: DeterminateSystems/flake-checker-action@v8
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v13
+
+      - name: Check flake
+        run: |
+          nix flake check \
+            --all-systems \
+            --no-build
+
+      - name: Run golangci-lint
+        run: |
+          nix develop --command \
+            golangci-lint run \
+              --verbose \
+              --timeout=3m
+
+      - name: Ensure gomod2nix dependencies are up to date
+        run: |
+          nix develop --command gomod2nix
+          git diff --exit-code gomod2nix.toml
+
+      - name: Build
+        run:
+          nix build
