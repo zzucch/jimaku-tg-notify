@@ -97,8 +97,14 @@ func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return "", errors.New(
-			"unexpected status code: " + strconv.Itoa(response.StatusCode))
+		message := "Unexpected response status code: " +
+			strconv.Itoa(response.StatusCode)
+
+		if response.StatusCode == http.StatusUnauthorized {
+			message += "\nConsider checking your API key"
+		}
+
+		return "", errors.New(message)
 	}
 
 	rateLimit, err := c.parseRateLimitHeaders(response)

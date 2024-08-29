@@ -13,10 +13,12 @@ const dataDir = "./_data"
 const connection = "./_data/sqlite.db"
 
 const defaultInterval = 6
+const defaultApiKey = ""
 
 type User struct {
 	ChatID               int64 `gorm:"primaryKey"`
 	NotificationInterval int
+	ApiKey               string
 }
 
 type Subscription struct {
@@ -61,6 +63,7 @@ func AddUser(chatID int64) error {
 	user := User{
 		ChatID:               chatID,
 		NotificationInterval: defaultInterval,
+		ApiKey:               defaultApiKey,
 	}
 
 	return db.Create(&user).Error
@@ -68,7 +71,7 @@ func AddUser(chatID int64) error {
 
 func SetNotificationInterval(chatID int64, interval int) error {
 	if interval <= 0 {
-		return errors.New("notification interval must be greater than 0")
+		return errors.New("Notification interval must be greater than 0")
 	}
 
 	var user User
@@ -76,13 +79,13 @@ func SetNotificationInterval(chatID int64, interval int) error {
 		&user,
 		"chat_id = ?",
 		chatID).Error; err != nil {
-		return errors.New("user not found")
+		return errors.New("User not found")
 	}
 
 	user.NotificationInterval = interval
 
 	if err := db.Save(&user).Error; err != nil {
-		return errors.New("failed to update notification interval")
+		return errors.New("Failed to update notification interval")
 	}
 
 	return nil
@@ -96,9 +99,9 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 		chatID,
 		titleID).First(&existingSubscription).Error
 	if err == nil {
-		return errors.New("already subscribed")
+		return errors.New("Already subscribed")
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("failed to subscribe")
+		return errors.New("Failed to subscribe")
 	}
 
 	subscription := Subscription{
@@ -108,7 +111,7 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 	}
 
 	if err := db.Create(&subscription).Error; err != nil {
-		return errors.New("failed to subscribe")
+		return errors.New("Failed to subscribe")
 	}
 
 	return nil
@@ -122,9 +125,9 @@ func Unsubscribe(chatID, titleID int64) error {
 		titleID,
 		chatID).First(&subscription).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("no such subscription")
+		return errors.New("No such subscription")
 	} else if err != nil {
-		return errors.New("failed to unsubscribe")
+		return errors.New("Failed to unsubscribe")
 	}
 
 	if err := db.Delete(
@@ -132,7 +135,7 @@ func Unsubscribe(chatID, titleID int64) error {
 		"title_id = ? AND chat_id = ?",
 		titleID,
 		chatID).Error; err != nil {
-		return errors.New("failed to unsubscribe")
+		return errors.New("Failed to unsubscribe")
 	}
 
 	return nil
@@ -142,7 +145,7 @@ func GetAllUsers() ([]User, error) {
 	var users []User
 
 	if err := db.Model(&User{}).Find(&users).Error; err != nil {
-		return nil, errors.New("failed to get users")
+		return nil, errors.New("Failed to get users")
 	}
 
 	return users, nil
@@ -154,7 +157,7 @@ func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	if err := db.Where(
 		"chat_id = ?",
 		chatID).Find(&subscriptions).Error; err != nil {
-		return nil, errors.New("failed to get subscriptions")
+		return nil, errors.New("Failed to get subscriptions")
 	}
 	return subscriptions, nil
 }
@@ -170,13 +173,13 @@ func SetLatestSubtitleTimestamp(
 		"chat_id = ? AND title_id = ?",
 		chatID,
 		titleID).First(&subscription).Error; err != nil {
-		return errors.New("subscription not found")
+		return errors.New("Subscription not found")
 	}
 
 	subscription.LatestSubtitleTime = latestSubtitleTime
 
 	if err := db.Save(&subscription).Error; err != nil {
-		return errors.New("failed to update latest subtitle timestamp")
+		return errors.New("Failed to update latest subtitle timestamp")
 	}
 
 	return nil

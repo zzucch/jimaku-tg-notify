@@ -20,7 +20,7 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 	}
 
 	if err := b.server.SetInterval(chatID, interval); err != nil {
-		b.SendMessage(chatID, "failed to process: "+err.Error())
+		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 

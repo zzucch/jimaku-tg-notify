@@ -14,7 +14,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	var messageSB strings.Builder
 	subscriptions, err := b.server.ListSubscriptions(chatID)
 	if err != nil {
-		b.SendMessage(chatID, "failed to process")
+		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 	}
 
 	if len(subscriptions) == 0 {

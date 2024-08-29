@@ -32,10 +32,7 @@ func (b *Bot) handleSubscription(
 	}
 
 	if err := action(chatID, titleID); err != nil {
-		b.SendMessage(
-			update.Message.From.ID,
-			"failed to process: "+err.Error())
-
+		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 
