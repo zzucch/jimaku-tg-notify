@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Server) Subscribe(chatID int64, titleID int64) error {
-	client, err := s.getClient(chatID)
+	client, err := s.clientManager.GetClient(chatID)
 	if err != nil {
 		log.Error(
 			"failed to get client",

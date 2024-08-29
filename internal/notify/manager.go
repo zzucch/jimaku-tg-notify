@@ -10,32 +10,41 @@ import (
 type NotifyManager struct {
 	schedulers     sync.Map
 	notificationCh chan Notification
-	client         *client.Client
+	clientManager  *client.ClientManager
 }
 
 func NewNotifyManager(
 	notificationCh chan Notification,
-	client *client.Client,
+	clientManager *client.ClientManager,
 ) *NotifyManager {
 	return &NotifyManager{
-		schedulers: sync.Map{},
-		client:     client,
-    notificationCh: notificationCh,
+		schedulers:     sync.Map{},
+		clientManager:  clientManager,
+		notificationCh: notificationCh,
 	}
 }
 
 func (nm *NotifyManager) AddScheduler(
 	chatID int64,
 	interval time.Duration,
-) {
+) error {
 	if scheduler, exists := nm.schedulers.Load(chatID); exists {
 		scheduler.(*NotifyScheduler).UpdateInterval(chatID, interval)
-	} else {
-		scheduler := NewNotifyScheduler(interval)
 
-		nm.schedulers.Store(chatID, scheduler)
-		scheduler.Start(chatID, nm.notificationCh, nm.client)
+		return nil
 	}
+
+	scheduler := NewNotifyScheduler(interval)
+	nm.schedulers.Store(chatID, scheduler)
+
+	client, err := nm.clientManager.GetClient(chatID)
+	if err != nil {
+		return err
+	}
+
+	scheduler.Start(chatID, nm.notificationCh, client)
+
+	return nil
 }
 
 func (nm *NotifyManager) RemoveScheduler(chatID int64) {

@@ -8,7 +8,6 @@ import (
 type Config struct {
 	LogConfig
 	BotConfig
-	APIConfig
 }
 
 type LogConfig struct {
@@ -18,10 +17,6 @@ type LogConfig struct {
 
 type BotConfig struct {
 	BotToken string `env:"BOT_TOKEN,required"`
-}
-
-type APIConfig struct {
-	APIKey string `env:"API_KEY,required"`
 }
 
 func ParseEnvConfig() Config {

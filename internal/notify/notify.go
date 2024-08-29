@@ -26,7 +26,7 @@ func Notify(
 	if err != nil {
 		notificationCh <- Notification{
 			ChatID:  chatID,
-			Message: "failed due to critical error - contact the developers",
+			Message: "Failed due to a critical error - contact the developers",
 		}
 
 		log.Fatal(
@@ -64,7 +64,14 @@ func getNotificationMessage(
 			"err",
 			err)
 
-		return "failed to get latest subtitle date: " + err.Error() + "\n"
+		var sb strings.Builder
+		sb.WriteString("Failed to get latest subtitle date for jimaku.cc/entry/")
+		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
+		sb.WriteString(":\n")
+		sb.WriteString(err.Error())
+		sb.WriteString("\n\n")
+
+		return sb.String()
 	}
 
 	if subscription.LatestSubtitleTime == latestSubtitleTime {

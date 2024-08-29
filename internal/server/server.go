@@ -4,18 +4,20 @@ import (
 	"sync"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
-	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
 type Server struct {
-	clients sync.Map
-	users   sync.Map
+	users         sync.Map
+	clientManager *client.ClientManager
 }
 
-func NewServer(chatIDs []int64) *Server {
+func NewServer(
+	chatIDs []int64,
+	clientManager *client.ClientManager,
+) *Server {
 	server := &Server{
-		clients: sync.Map{},
-		users:   sync.Map{},
+		users:         sync.Map{},
+		clientManager: clientManager,
 	}
 
 	for _, chatID := range chatIDs {
@@ -23,21 +25,4 @@ func NewServer(chatIDs []int64) *Server {
 	}
 
 	return server
-}
-
-func (s *Server) getClient(chatID int64) (*client.Client, error) {
-	v, ok := s.clients.Load(chatID)
-	if !ok {
-		apiKey, err := storage.GetApiKey(chatID)
-		if err != nil {
-			return nil, err
-		}
-
-		c := client.NewClient(apiKey)
-		s.clients.Store(chatID, c)
-
-		return c, err
-	}
-
-	return v.(*client.Client), nil
 }

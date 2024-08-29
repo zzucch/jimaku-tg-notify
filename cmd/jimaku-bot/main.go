@@ -36,14 +36,14 @@ func main() {
 		log.Fatal("failed getting users", "err", err)
 	}
 
-	client := client.NewClient(config.APIKey)
-
 	chatIDs := make([]int64, 0, len(users))
 	for _, user := range users {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	server := server.NewServer(chatIDs)
+	cm := &client.ClientManager{}
+
+	server := server.NewServer(chatIDs, cm)
 
 	notificationCh := make(chan notify.Notification, 1000)
 
@@ -52,13 +52,17 @@ func main() {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	manager := notify.NewNotifyManager(notificationCh, client)
+	manager := notify.NewNotifyManager(notificationCh, cm)
 
 	log.Debug(users)
+
 	for _, user := range users {
-		manager.AddScheduler(
+		err := manager.AddScheduler(
 			user.ChatID,
 			time.Duration(int(time.Hour)*user.NotificationInterval))
+		if err != nil {
+			log.Fatal("failed to add scheduler", "user", user)
+		}
 	}
 
 	bot.Start()
