@@ -43,7 +43,7 @@ func main() {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	server := server.NewServer(chatIDs, client)
+	server := server.NewServer(chatIDs)
 
 	notificationCh := make(chan notify.Notification, 1000)
 
