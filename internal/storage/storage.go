@@ -16,7 +16,7 @@ const defaultInterval = 6
 
 type User struct {
 	ChatID               int64 `gorm:"primaryKey"`
-	NotificationInterval int   `gorm:"primaryKey"`
+	NotificationInterval int
 }
 
 type Subscription struct {
