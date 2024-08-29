@@ -10,6 +10,7 @@ import (
 
 type Bot struct {
 	botAPI         *tgbotapi.BotAPI
+	cache          loggedUsersCache
 	server         *server.Server
 	notificationCh chan notify.Notification
 }
@@ -29,17 +30,18 @@ func (b *Bot) SendMessage(chatID int64, text string) {
 	}
 }
 
-func Initialize(
+func NewBot(
 	config config.Config,
 	server *server.Server,
 	notificationCh chan notify.Notification,
 ) (*Bot, error) {
 	log.Info("starting bot")
+
 	var err error
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
 		return &Bot{}, err
-	}
+  }
 
 	if config.BotDebugLevel {
 		bot.Debug = true

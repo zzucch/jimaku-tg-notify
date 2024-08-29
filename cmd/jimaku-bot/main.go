@@ -47,7 +47,7 @@ func main() {
 
 	notificationCh := make(chan notify.Notification, 1000)
 
-	bot, err := bot.Initialize(config, server, notificationCh)
+	bot, err := bot.NewBot(config, server, notificationCh)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}

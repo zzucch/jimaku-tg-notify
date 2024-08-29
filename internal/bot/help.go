@@ -4,6 +4,16 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+func (b *Bot) handleLogin(update tgbotapi.Update) {
+	message :=
+		`
+Please set your API key:
+/apikey [key]
+`
+
+	b.SendMessage(update.Message.From.ID, message)
+}
+
 func (b *Bot) handleHelp(update tgbotapi.Update) {
 	helpMessage :=
 		`

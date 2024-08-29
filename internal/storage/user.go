@@ -9,7 +9,7 @@ import (
 type User struct {
 	ChatID               int64 `gorm:"primaryKey"`
 	NotificationInterval int
-	ApiKey               string
+	APIKey               string
 }
 
 func AddUser(chatID int64) error {
@@ -25,13 +25,13 @@ func AddUser(chatID int64) error {
 	user := User{
 		ChatID:               chatID,
 		NotificationInterval: defaultInterval,
-		ApiKey:               defaultApiKey,
+		APIKey:               defaultApiKey,
 	}
 
 	return db.Create(&user).Error
 }
 
-func SetApiKey(chatID int64, apiKey string) error {
+func SetAPIKey(chatID int64, apiKey string) error {
 	var user User
 	if err := db.First(
 		&user,
@@ -40,7 +40,7 @@ func SetApiKey(chatID int64, apiKey string) error {
 		return errors.New("User not found")
 	}
 
-	user.ApiKey = apiKey
+	user.APIKey = apiKey
 
 	if err := db.Save(&user).Error; err != nil {
 		return errors.New("Failed to update API key")
@@ -49,7 +49,7 @@ func SetApiKey(chatID int64, apiKey string) error {
 	return nil
 }
 
-func GetApiKey(chatID int64) (string, error) {
+func GetAPIKey(chatID int64) (string, error) {
 	var user User
 	if err := db.First(
 		&user,
@@ -58,7 +58,7 @@ func GetApiKey(chatID int64) (string, error) {
 		return "", errors.New("User not found")
 	}
 
-	return user.ApiKey, nil
+	return user.APIKey, nil
 }
 
 func SetNotificationInterval(chatID int64, interval int) error {

@@ -13,7 +13,7 @@ type ClientManager struct {
 func (cm *ClientManager) GetClient(chatID int64) (*Client, error) {
 	v, ok := cm.clients.Load(chatID)
 	if !ok {
-		apiKey, err := storage.GetApiKey(chatID)
+		apiKey, err := storage.GetAPIKey(chatID)
 		if err != nil {
 			return nil, err
 		}
@@ -27,8 +27,8 @@ func (cm *ClientManager) GetClient(chatID int64) (*Client, error) {
 	return v.(*Client), nil
 }
 
-func (cm *ClientManager) UppdateApiKey(chatID int64) error {
-	apiKey, err := storage.GetApiKey(chatID)
+func (cm *ClientManager) UpdateAPIKey(chatID int64) error {
+	apiKey, err := storage.GetAPIKey(chatID)
 	if err != nil {
 		return err
 	}
