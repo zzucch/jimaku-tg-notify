@@ -26,7 +26,7 @@ func (b *Bot) handleSubscription(
 	unvalidatedTitleID = strings.TrimSpace(unvalidatedTitleID)
 
 	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
-	if unvalidatedTitleID == "" || err != nil {
+	if unvalidatedTitleID == "" || err != nil || titleID < 0 {
 		b.SendMessage(chatID, "Example usage:\n"+command+" 123")
 		return
 	}
@@ -36,5 +36,5 @@ func (b *Bot) handleSubscription(
 		return
 	}
 
-	b.SendMessage(update.Message.From.ID, "done")
+	b.SendMessage(update.Message.From.ID, "Done")
 }

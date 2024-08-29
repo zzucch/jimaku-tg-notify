@@ -1,8 +1,10 @@
 package bot
 
 import (
+	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -16,6 +18,12 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 	interval, err := strconv.Atoi(unvalidatedInterval)
 	if unvalidatedInterval == "" || err != nil {
 		b.SendMessage(chatID, "Example usage:\n"+intervalCommand+" 24")
+		return
+	}
+
+	const maxSupportedInterval = int(math.MaxInt64 / time.Hour)
+	if interval > maxSupportedInterval {
+		b.SendMessage(chatID, "Do not use unreasonably long interval")
 		return
 	}
 

@@ -33,7 +33,7 @@ func (s *Server) SetInterval(
 ) error {
 	err := storage.SetNotificationInterval(chatID, interval)
 	if err != nil {
-		log.Error(
+		log.Warn(
 			"failed to set interval",
 			"chatID",
 			chatID,

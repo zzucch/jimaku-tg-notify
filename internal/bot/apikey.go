@@ -28,6 +28,10 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 		return
 	}
 
-	b.cache.insert(chatID)
-	b.SendMessage(chatID, "Done")
+	if !b.cache.exists(chatID) {
+		b.cache.insert(chatID)
+		b.handleHelp(update)
+	} else {
+		b.SendMessage(chatID, "Done")
+	}
 }

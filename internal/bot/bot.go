@@ -37,9 +37,7 @@ func NewBot(
 		return &Bot{}, err
 	}
 
-	if config.BotDebugLevel {
-		bot.Debug = true
-	}
+	bot.Debug = config.BotDebugLevel
 
 	return &Bot{
 		botAPI:         bot,

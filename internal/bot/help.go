@@ -4,16 +4,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (b *Bot) handleLogin(update tgbotapi.Update) {
-	message :=
-		`
-Please set your API key:
-/apikey [key]
-`
-
-	b.SendMessage(update.Message.From.ID, message)
-}
-
 func (b *Bot) handleHelp(update tgbotapi.Update) {
 	helpMessage :=
 		`
@@ -28,11 +18,15 @@ Subscribe to all updates on the given title
 Unsubscribe from the given title
 
 /interval [hours]
-Set current notification interval to the given amount of hours
-Default value is 6 hours
+Set current notification interval to the given amount of hours.
+By default it is 6 hours
 
 /apikey [key]
 Set personal api key
+
+
+How to get Title ID:
+For example, the jimaku entry for 「逃げるは恥だが役に立つ」 is https://jimaku.cc/entry/3331, so the Title ID would be 3331
 `
 
 	b.SendMessage(update.Message.From.ID, helpMessage)

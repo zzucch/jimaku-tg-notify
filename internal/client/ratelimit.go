@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/charmbracelet/log"
 )
 
 type responseRateLimit struct {
@@ -52,8 +50,6 @@ func (c *Client) parseRateLimitHeaders(
 }
 
 func (c *Client) updateRateLimiter(rl responseRateLimit) {
-	log.Debug("response rate limit", "rl", rl)
-
 	c.limiter.SetLimit(rl.limit)
 	c.limiter.SetRemaining(rl.remaining - 1)
 
