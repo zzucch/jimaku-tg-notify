@@ -17,7 +17,7 @@ func NewLimiter() *Limiter {
 	return &Limiter{
 		limit:          1,
 		remaining:      1,
-		resetTimestamp: time.Now().Unix() + 100,
+		resetTimestamp: time.Now().Add(100 * time.Second).Unix(),
 	}
 }
 

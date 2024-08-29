@@ -55,11 +55,11 @@ func (c *Client) updateRateLimiter(rl responseRateLimit) {
 	log.Debug("response rate limit", "rl", rl)
 
 	c.limiter.SetLimit(rl.limit)
-	c.limiter.SetRemaining(rl.remaining)
+	c.limiter.SetRemaining(rl.remaining - 1)
 
 	// HACK: because i was getting reset time being in the past way too often
 	if time.Until(time.Unix(rl.reset, 0)).Nanoseconds() < 0 {
-		rl.reset = time.Now().Unix() + 100
+		rl.reset = time.Now().Add(100 * time.Second).Unix()
 	}
 
 	c.limiter.SetResetTime(int64(float64(rl.reset)))
