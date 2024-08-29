@@ -58,10 +58,7 @@ func (l *Limiter) Wait() {
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
 
-	select {
-	case <-timer.C:
-		return
-	}
+	<-timer.C
 }
 
 func (l *Limiter) getDelay() time.Duration {

@@ -55,8 +55,7 @@ func (s *Server) SetAPIKey(
 	chatID int64,
 	apiKey string,
 ) error {
-	err := storage.SetAPIKey(chatID, apiKey)
-	if err != nil {
+	if err := storage.SetAPIKey(chatID, apiKey); err != nil {
 		log.Error(
 			"failed to set api key",
 			"chatID",
@@ -67,7 +66,16 @@ func (s *Server) SetAPIKey(
 		return err
 	}
 
-	s.clientManager.UpdateAPIKey(chatID)
+	if err := s.clientManager.UpdateAPIKey(chatID); err != nil {
+		log.Error(
+			"failed to update api key",
+			"chatID",
+			chatID,
+			"err",
+			err)
+
+		return err
+	}
 
 	return nil
 }

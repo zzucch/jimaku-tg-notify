@@ -4,6 +4,8 @@ import (
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/charmbracelet/log"
 )
 
 type Update struct {
@@ -20,7 +22,15 @@ func (nm *NotifyManager) WatchForUpdates() {
 		go func() {
 			defer wg.Done()
 			for update := range nm.updateCh {
-				nm.AddScheduler(update.ChatID, update.Interval)
+				err := nm.AddScheduler(update.ChatID, update.Interval)
+				if err != nil {
+					log.Error("failed to update scheduler", "update", update)
+
+					nm.notificationCh <- Notification{
+						ChatID:  update.ChatID,
+						Message: "Failed due to a critical error - contact the developers",
+					}
+				}
 			}
 		}()
 	}

@@ -24,17 +24,17 @@ func Notify(
 
 	subscriptions, err := storage.GetAllSubscriptions(chatID)
 	if err != nil {
-		notificationCh <- Notification{
-			ChatID:  chatID,
-			Message: "Failed due to a critical error - contact the developers",
-		}
-
 		log.Error(
 			"failed to get all subscriptions",
 			"chatID",
 			chatID,
 			"err",
 			err)
+
+		notificationCh <- Notification{
+			ChatID:  chatID,
+			Message: "Failed due to a critical error - contact the developers",
+		}
 	}
 
 	for _, subscription := range subscriptions {
