@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -41,8 +42,8 @@ func main() {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	updateCh := make(chan notify.Update)
-	notificationCh := make(chan notify.Notification, 1000)
+	updateCh := make(chan notify.Update, runtime.NumCPU())
+	notificationCh := make(chan notify.Notification, runtime.NumCPU())
 
 	cm := &client.ClientManager{}
 	server := server.NewServer(chatIDs, cm, updateCh)

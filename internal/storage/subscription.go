@@ -62,6 +62,23 @@ func Unsubscribe(chatID, titleID int64) error {
 	return nil
 }
 
+func SubscriptionExists(chatID, titleID int64) (bool, error) {
+	var subscription Subscription
+
+	err := db.Where(
+		"chat_id = ? AND title_id = ?",
+		chatID,
+		titleID).First(&subscription).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	} else if err != nil {
+		return false, errors.New("Failed to check subscription existence")
+	}
+
+	return true, nil
+}
+
 func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	var subscriptions []Subscription
 

@@ -1,6 +1,9 @@
 package bot
 
 import (
+	"runtime"
+	"sync"
+
 	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
@@ -23,13 +26,6 @@ const (
 	intervalCommand    = "/interval"
 )
 
-func (b *Bot) SendMessage(chatID int64, text string) {
-	message := tgbotapi.NewMessage(chatID, text)
-	if _, err := b.botAPI.Send(message); err != nil {
-		log.Error("failed to send message", "err", err)
-	}
-}
-
 func NewBot(
 	config config.Config,
 	server *server.Server,
@@ -39,7 +35,7 @@ func NewBot(
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
 		return &Bot{}, err
-  }
+	}
 
 	if config.BotDebugLevel {
 		bot.Debug = true
@@ -72,7 +68,18 @@ func (b *Bot) Start() {
 }
 
 func (b *Bot) handleNotifications() {
-	for notification := range b.notificationCh {
-		b.SendMessage(notification.ChatID, notification.Message)
+	workerCount := runtime.NumCPU()
+	var wg sync.WaitGroup
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for notification := range b.notificationCh {
+				b.SendMessage(notification.ChatID, notification.Message)
+			}
+		}()
 	}
+
+	wg.Wait()
 }

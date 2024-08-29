@@ -29,5 +29,5 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 	}
 
 	b.cache.insert(chatID)
-	b.SendMessage(chatID, "done")
+	b.SendMessage(chatID, "Done")
 }

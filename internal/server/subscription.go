@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
@@ -18,6 +20,19 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return err
 	}
 
+	exists, err := storage.SubscriptionExists(chatID, titleID)
+	if err != nil {
+		log.Warn("failed to get subscription existence",
+			"titleID",
+			titleID,
+			"err",
+			err)
+	}
+
+	if exists {
+		return errors.New("Already subscribed")
+	}
+
 	latestSubtitleTime, err := client.GetLatestSubtitleTime(titleID)
 	if err != nil {
 		log.Warn("failed to get latest subtitle date",
@@ -33,7 +48,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		chatID,
 		titleID,
 		latestSubtitleTime); err != nil {
-		log.Error(
+		log.Warn(
 			"failed to subscribe",
 			"chatID",
 			chatID,
@@ -52,7 +67,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 
 func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
 	if err := storage.Unsubscribe(chatID, titleID); err != nil {
-		log.Error(
+		log.Warn(
 			"failed to unsubscribe",
 			"chatID",
 			chatID,
@@ -72,7 +87,7 @@ func (s *Server) ListSubscriptions(
 ) ([]storage.Subscription, error) {
 	subscriptions, err := storage.GetAllSubscriptions(chatID)
 	if err != nil {
-		log.Error(
+		log.Warn(
 			"failed to get all subscriptions",
 			"chatID",
 			chatID,

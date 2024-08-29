@@ -1,6 +1,10 @@
 package notify
 
-import "time"
+import (
+	"runtime"
+	"sync"
+	"time"
+)
 
 type Update struct {
 	ChatID   int64
@@ -8,7 +12,18 @@ type Update struct {
 }
 
 func (nm *NotifyManager) WatchForUpdates() {
-	for update := range nm.updateCh {
-		nm.AddScheduler(update.ChatID, update.Interval)
+	workerCount := runtime.NumCPU()
+	var wg sync.WaitGroup
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for update := range nm.updateCh {
+				nm.AddScheduler(update.ChatID, update.Interval)
+			}
+		}()
 	}
+
+	wg.Wait()
 }

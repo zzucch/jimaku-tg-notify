@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 )
 
@@ -31,7 +30,6 @@ func (nm *NotifyManager) AddScheduler(
 	chatID int64,
 	interval time.Duration,
 ) error {
-	log.Debug("adding scheduler!")
 	if scheduler, exists := nm.schedulers.Load(chatID); exists {
 		scheduler.(*NotifyScheduler).UpdateInterval(chatID, interval)
 
