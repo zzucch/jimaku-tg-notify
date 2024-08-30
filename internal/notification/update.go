@@ -13,7 +13,7 @@ type Update struct {
 	Interval time.Duration
 }
 
-func (nm *Manager) WatchForUpdates() {
+func (m *Manager) WatchForUpdates() {
 	workerCount := runtime.NumCPU()
 
 	var wg sync.WaitGroup
@@ -24,12 +24,12 @@ func (nm *Manager) WatchForUpdates() {
 		go func() {
 			defer wg.Done()
 
-			for update := range nm.updateCh {
-				err := nm.AddScheduler(update.ChatID, update.Interval)
+			for update := range m.updateCh {
+				err := m.AddScheduler(update.ChatID, update.Interval)
 				if err != nil {
 					log.Error("failed to update scheduler", "update", update)
 
-					nm.notificationCh <- Notification{
+					m.notificationCh <- Notification{
 						ChatID:  update.ChatID,
 						Message: "Failed due to a critical error - contact the developers",
 					}

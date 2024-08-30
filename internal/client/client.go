@@ -93,7 +93,7 @@ func (c *Client) getResponse(url string, attempts int) (string, error) {
 				"url",
 				url,
 				"attempt",
-				attempt,
+				attempt+1,
 			)
 
 			rateLimit, err := c.parseRateLimitHeaders(response)

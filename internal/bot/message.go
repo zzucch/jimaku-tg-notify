@@ -43,7 +43,10 @@ func getRetryAfterDuration(err error) (time.Duration, bool) {
 	errMsg := err.Error()
 	if strings.Contains(errMsg, prefix) {
 		parts := strings.Split(errMsg, prefix)
-		if len(parts) == 2 {
+
+		const correctPartsAmount = 2
+
+		if len(parts) == correctPartsAmount {
 			if retryAfterSeconds, parseErr :=
 				strconv.Atoi(parts[1]); parseErr == nil {
 				return time.Duration(retryAfterSeconds) * time.Second, true

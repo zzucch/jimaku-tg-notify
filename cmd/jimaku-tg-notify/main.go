@@ -54,15 +54,15 @@ func main() {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	notifManager := notification.NewManager(
+	notificationManager := notification.NewManager(
 		clientManager,
 		updateCh,
 		notificationCh)
 
-	go notifManager.WatchForUpdates()
+	go notificationManager.WatchForUpdates()
 
 	for _, user := range users {
-		if err := notifManager.AddScheduler(
+		if err := notificationManager.AddScheduler(
 			user.ChatID,
 			time.Duration(int(time.Hour)*user.NotificationInterval)); err != nil {
 			log.Fatal("failed to add scheduler", "user", user)

@@ -10,8 +10,8 @@ type Manager struct {
 	clients sync.Map
 }
 
-func (cm *Manager) GetClient(chatID int64) (*Client, error) {
-	unvalidated, ok := cm.clients.Load(chatID)
+func (m *Manager) GetClient(chatID int64) (*Client, error) {
+	unvalidated, ok := m.clients.Load(chatID)
 	if !ok {
 		apiKey, err := storage.GetAPIKey(chatID)
 		if err != nil {
@@ -19,7 +19,7 @@ func (cm *Manager) GetClient(chatID int64) (*Client, error) {
 		}
 
 		c := NewClient(apiKey)
-		cm.clients.Store(chatID, c)
+		m.clients.Store(chatID, c)
 
 		return c, nil
 	}
@@ -27,14 +27,14 @@ func (cm *Manager) GetClient(chatID int64) (*Client, error) {
 	return unvalidated.(*Client), nil
 }
 
-func (cm *Manager) UpdateAPIKey(chatID int64) error {
+func (m *Manager) UpdateAPIKey(chatID int64) error {
 	apiKey, err := storage.GetAPIKey(chatID)
 	if err != nil {
 		return err
 	}
 
 	c := NewClient(apiKey)
-	cm.clients.Store(chatID, c)
+	m.clients.Store(chatID, c)
 
 	return nil
 }
