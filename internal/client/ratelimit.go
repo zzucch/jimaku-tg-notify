@@ -18,25 +18,25 @@ func (c *Client) parseRateLimitHeaders(
 	response *http.Response,
 ) (responseRateLimit, error) {
 	limit, err := strconv.Atoi(
-		response.Header.Get("x-ratelimit-limit"))
+		response.Header.Get("X-Ratelimit-Limit"))
 	if err != nil {
 		return responseRateLimit{}, err
 	}
 
 	remaining, err := strconv.Atoi(
-		response.Header.Get("x-ratelimit-remaining"))
+		response.Header.Get("X-Ratelimit-Remaining"))
 	if err != nil {
 		return responseRateLimit{}, err
 	}
 
 	reset, err := strconv.ParseInt(
-		response.Header.Get("x-ratelimit-reset"), 10, 64)
+		response.Header.Get("X-Ratelimit-Reset"), 10, 64)
 	if err != nil {
 		return responseRateLimit{}, err
 	}
 
 	resetAfter, err := strconv.ParseFloat(
-		response.Header.Get("x-ratelimit-reset-after"), 64)
+		response.Header.Get("X-Ratelimit-Reset-After"), 64)
 	if err != nil {
 		resetAfter = 0
 	}
@@ -49,21 +49,24 @@ func (c *Client) parseRateLimitHeaders(
 	}, nil
 }
 
-func (c *Client) updateRateLimiter(rl responseRateLimit) {
-	c.limiter.SetLimit(rl.limit)
-	c.limiter.SetRemaining(rl.remaining - 1)
+func (c *Client) updateRateLimiter(responseRateLimit responseRateLimit) {
+	c.limiter.SetLimit(responseRateLimit.limit)
+	c.limiter.SetRemaining(responseRateLimit.remaining - 1)
 
 	// HACK: because i was getting reset time being in the past way too often
-	if time.Until(time.Unix(rl.reset, 0)).Nanoseconds() < 0 {
-		rl.reset = time.Now().Add(100 * time.Second).Unix()
+	if time.Until(time.Unix(responseRateLimit.reset, 0)).Nanoseconds() < 0 {
+		responseRateLimit.reset = time.Now().Add(100 * time.Second).Unix()
 	}
 
-	c.limiter.SetResetTime(int64(float64(rl.reset)))
+	c.limiter.SetResetTime(int64(float64(responseRateLimit.reset)))
 
 	// the client is getting this header only when low on remaining requests,
 	// so it might as well don't do any for the time being
-	if rl.resetAfter > 0 {
+	if responseRateLimit.resetAfter > 0 {
+		c.limiter.SetResetTime(
+			responseRateLimit.reset +
+				int64(math.Ceil(responseRateLimit.resetAfter)))
+
 		c.limiter.SetRemaining(0)
-		c.limiter.SetResetTime(rl.reset + int64(math.Ceil(rl.resetAfter)))
 	}
 }

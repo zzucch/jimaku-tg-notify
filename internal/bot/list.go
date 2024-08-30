@@ -11,11 +11,12 @@ import (
 func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	chatID := update.Message.From.ID
 
-	var messageSB strings.Builder
 	subscriptions, err := b.server.ListSubscriptions(chatID)
 	if err != nil {
 		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 	}
+
+	var messageSB strings.Builder
 
 	if len(subscriptions) == 0 {
 		messageSB.WriteString("You don't have any subscriptions yet!\n")

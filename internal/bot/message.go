@@ -14,7 +14,7 @@ const maxRetries = 5
 func (b *Bot) SendMessage(chatID int64, text string) {
 	message := tgbotapi.NewMessage(chatID, text)
 
-	for retries := 0; retries < maxRetries; retries++ {
+	for retry := 0; retry < maxRetries; retry++ {
 		if _, err := b.botAPI.Send(message); err != nil {
 			if retryAfter, ok := getRetryAfterDuration(err); ok {
 				retryAfter *= 2
@@ -22,13 +22,12 @@ func (b *Bot) SendMessage(chatID int64, text string) {
 				time.Sleep(retryAfter)
 
 				continue
-			} else {
-				log.Error("failed to send message", "err", err)
-				return
 			}
-		} else {
-			return
+
+			log.Error("failed to send message", "err", err, "retry", retry)
 		}
+
+		return
 	}
 
 	log.Error("failed to send message", "max retries", maxRetries)
@@ -40,6 +39,7 @@ func getRetryAfterDuration(err error) (time.Duration, bool) {
 	}
 
 	const prefix = "Too Many Requests: retry after "
+
 	errMsg := err.Error()
 	if strings.Contains(errMsg, prefix) {
 		parts := strings.Split(errMsg, prefix)

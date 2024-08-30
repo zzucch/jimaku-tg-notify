@@ -5,8 +5,7 @@ import (
 )
 
 func (b *Bot) handleHelp(update tgbotapi.Update) {
-	helpMessage :=
-		`
+	helpMessage := `
 Available commands:
 /list 
 List all subscriptions

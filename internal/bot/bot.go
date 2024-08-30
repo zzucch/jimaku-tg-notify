@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
-	"github.com/zzucch/jimaku-tg-notify/internal/notify"
+	"github.com/zzucch/jimaku-tg-notify/internal/notification"
 	"github.com/zzucch/jimaku-tg-notify/internal/server"
 )
 
@@ -15,7 +15,7 @@ type Bot struct {
 	botAPI         *tgbotapi.BotAPI
 	cache          loggedUsersCache
 	server         *server.Server
-	notificationCh chan notify.Notification
+	notificationCh chan notification.Notification
 }
 
 const (
@@ -29,9 +29,10 @@ const (
 func NewBot(
 	config config.Config,
 	server *server.Server,
-	notificationCh chan notify.Notification,
+	notificationCh chan notification.Notification,
 ) (*Bot, error) {
 	var err error
+
 	bot, err := tgbotapi.NewBotAPI(config.BotToken)
 	if err != nil {
 		return &Bot{}, err
@@ -67,12 +68,15 @@ func (b *Bot) Start() {
 
 func (b *Bot) handleNotifications() {
 	workerCount := runtime.NumCPU()
+
 	var wg sync.WaitGroup
 
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
+
 			for notification := range b.notificationCh {
 				b.SendMessage(notification.ChatID, notification.Message)
 			}

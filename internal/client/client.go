@@ -69,43 +69,59 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 	return &entry, nil
 }
 
-func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
-	c.limiter.Wait()
+func (c *Client) getResponse(url string, attempts int) (string, error) {
+	for attempt := range attempts {
+		c.limiter.Wait()
 
-	request, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	request.Header.Add("Authorization", c.apiKey)
-	request.Header.Add("Accept", "application/json")
-
-	response, err := c.httpClient.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode == http.StatusTooManyRequests && attemptsAmount > 1 {
-		log.Warn(
-			"too many requests",
-			"url",
-			url,
-			"attempts left",
-			attemptsAmount,
-		)
-
-		rateLimit, err := c.parseRateLimitHeaders(response)
+		request, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return "", err
 		}
 
-		c.updateRateLimiter(rateLimit)
+		request.Header.Add("Authorization", c.apiKey)
+		request.Header.Add("Accept", "application/json")
 
-		return c.getResponse(url, attemptsAmount-1)
-	}
+		response, err := c.httpClient.Do(request)
+		if err != nil {
+			return "", err
+		}
+		defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusTooManyRequests {
+			log.Warn(
+				"too many requests",
+				"url",
+				url,
+				"attempt",
+				attempt,
+			)
+
+			rateLimit, err := c.parseRateLimitHeaders(response)
+			if err != nil {
+				return "", err
+			}
+
+			c.updateRateLimiter(rateLimit)
+
+			continue
+		}
+
+		if response.StatusCode == http.StatusOK {
+			rateLimit, err := c.parseRateLimitHeaders(response)
+			if err != nil {
+				return "", err
+			}
+
+			c.updateRateLimiter(rateLimit)
+
+			body, err := io.ReadAll(response.Body)
+			if err != nil {
+				return "", err
+			}
+
+			return string(body), nil
+		}
+
 		message := "Unexpected response status code: " +
 			strconv.Itoa(response.StatusCode)
 
@@ -114,23 +130,11 @@ func (c *Client) getResponse(url string, attemptsAmount int) (string, error) {
 		}
 
 		if response.StatusCode == http.StatusNotFound {
-			message = "The subtitles don't exist"
+			message = "The entry does not exist"
 		}
 
 		return "", errors.New(message)
 	}
 
-	rateLimit, err := c.parseRateLimitHeaders(response)
-	if err != nil {
-		return "", err
-	}
-
-	c.updateRateLimiter(rateLimit)
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return string(body), nil
+	return "", errors.New("exceeded maximum retry attempts")
 }

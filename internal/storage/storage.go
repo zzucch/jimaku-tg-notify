@@ -8,11 +8,15 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-const dataDir = "./_data"
-const connection = "./_data/sqlite.db"
+const (
+	dataDir    = "./_data"
+	connection = "./_data/sqlite.db"
+)
 
-const defaultInterval = 6
-const defaultApiKey = ""
+const (
+	defaultInterval = 6
+	defaultAPIKey   = ""
+)
 
 var db *gorm.DB
 

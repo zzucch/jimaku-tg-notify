@@ -25,7 +25,7 @@ func AddOrGetUser(chatID int64) (User, error) {
 	user := User{
 		ChatID:               chatID,
 		NotificationInterval: defaultInterval,
-		APIKey:               defaultApiKey,
+		APIKey:               defaultAPIKey,
 	}
 
 	return user, db.Create(&user).Error

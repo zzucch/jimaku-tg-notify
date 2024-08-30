@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/zzucch/jimaku-tg-notify/internal/notify"
+	"github.com/zzucch/jimaku-tg-notify/internal/notification"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
@@ -19,7 +19,7 @@ func (s *Server) AddUser(chatID int64) error {
 		return err
 	}
 
-	s.updateCh <- notify.Update{
+	s.updateCh <- notification.Update{
 		ChatID:   user.ChatID,
 		Interval: time.Duration(user.NotificationInterval * int(time.Hour)),
 	}
@@ -43,7 +43,7 @@ func (s *Server) SetInterval(
 		return err
 	}
 
-	s.updateCh <- notify.Update{
+	s.updateCh <- notification.Update{
 		ChatID:   chatID,
 		Interval: time.Duration(interval) * time.Hour,
 	}
@@ -80,7 +80,7 @@ func (s *Server) SetAPIKey(
 	return nil
 }
 
-func (s *Server) ValidateAPIKey(chatID int64) (exists bool, err error) {
+func (s *Server) ValidateAPIKey(chatID int64) (bool, error) {
 	apiKey, err := storage.GetAPIKey(chatID)
 	if err != nil {
 		log.Error(

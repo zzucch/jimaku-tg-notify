@@ -1,4 +1,4 @@
-package notify
+package notification
 
 import (
 	"strconv"
@@ -66,6 +66,7 @@ func getNotificationMessage(
 			err)
 
 		var sb strings.Builder
+
 		sb.WriteString("Failed to get latest subtitle date for jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(":\n")

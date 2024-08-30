@@ -9,7 +9,7 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/bot"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
-	"github.com/zzucch/jimaku-tg-notify/internal/notify"
+	"github.com/zzucch/jimaku-tg-notify/internal/notification"
 	"github.com/zzucch/jimaku-tg-notify/internal/server"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
@@ -22,6 +22,7 @@ func init() {
 
 func main() {
 	config := config.ParseEnvConfig()
+
 	if config.LogDebugLevel {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -29,12 +30,12 @@ func main() {
 	log.Info("loaded env config", "config", config)
 
 	if err := storage.Start(); err != nil {
-		log.Fatal("failed connecting to storage", "err", err)
+		log.Fatal("failed to connect to storage", "err", err)
 	}
 
 	users, err := storage.GetAllUsers()
 	if err != nil {
-		log.Fatal("failed getting users", "err", err)
+		log.Fatal("failed to get users", "err", err)
 	}
 
 	chatIDs := make([]int64, 0, len(users))
@@ -42,25 +43,28 @@ func main() {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	updateCh := make(chan notify.Update, runtime.NumCPU())
-	notificationCh := make(chan notify.Notification, runtime.NumCPU())
+	updateCh := make(chan notification.Update, runtime.NumCPU())
+	notificationCh := make(chan notification.Notification, runtime.NumCPU())
 
-	cm := &client.ClientManager{}
-	server := server.NewServer(chatIDs, cm, updateCh)
+	clientManager := &client.Manager{}
+	server := server.NewServer(chatIDs, clientManager, updateCh)
 
 	bot, err := bot.NewBot(config, server, notificationCh)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
-	nm := notify.NewNotifyManager(cm, updateCh, notificationCh)
-	go nm.WatchForUpdates()
+	notifManager := notification.NewManager(
+		clientManager,
+		updateCh,
+		notificationCh)
+
+	go notifManager.WatchForUpdates()
 
 	for _, user := range users {
-		err := nm.AddScheduler(
+		if err := notifManager.AddScheduler(
 			user.ChatID,
-			time.Duration(int(time.Hour)*user.NotificationInterval))
-		if err != nil {
+			time.Duration(int(time.Hour)*user.NotificationInterval)); err != nil {
 			log.Fatal("failed to add scheduler", "user", user)
 		}
 	}

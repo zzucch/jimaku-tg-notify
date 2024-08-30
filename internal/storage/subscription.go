@@ -87,6 +87,7 @@ func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 		chatID).Find(&subscriptions).Error; err != nil {
 		return nil, errors.New("Failed to get subscriptions")
 	}
+
 	return subscriptions, nil
 }
 

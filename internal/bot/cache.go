@@ -11,6 +11,7 @@ type loggedUsersCache struct {
 
 func (c *loggedUsersCache) insert(chatID int64) {
 	c.Store(chatID, struct{}{})
+
 	expiration := time.After(6 * time.Hour)
 	go func() {
 		<-expiration

@@ -7,7 +7,7 @@ import (
 )
 
 func TimestampToString(timestamp int64) string {
-	t, err := time.Unix(timestamp, 0).UTC().MarshalText()
+	text, err := time.Unix(timestamp, 0).UTC().MarshalText()
 	if err != nil {
 		log.Error(
 			"cannot convert timestamp to string",
@@ -17,14 +17,14 @@ func TimestampToString(timestamp int64) string {
 		return "[invalid time]"
 	}
 
-	return string(t)
+	return string(text)
 }
 
 func RFC3339ToUnixTimestamp(rfc3339time string) (int64, error) {
-	t, err := time.Parse(time.RFC3339, rfc3339time)
+	timestamp, err := time.Parse(time.RFC3339, rfc3339time)
 	if err != nil {
 		return 0, err
 	}
 
-	return t.Unix(), nil
+	return timestamp.Unix(), nil
 }

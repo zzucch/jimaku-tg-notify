@@ -6,12 +6,12 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
-type ClientManager struct {
+type Manager struct {
 	clients sync.Map
 }
 
-func (cm *ClientManager) GetClient(chatID int64) (*Client, error) {
-	v, ok := cm.clients.Load(chatID)
+func (cm *Manager) GetClient(chatID int64) (*Client, error) {
+	unvalidated, ok := cm.clients.Load(chatID)
 	if !ok {
 		apiKey, err := storage.GetAPIKey(chatID)
 		if err != nil {
@@ -24,10 +24,10 @@ func (cm *ClientManager) GetClient(chatID int64) (*Client, error) {
 		return c, nil
 	}
 
-	return v.(*Client), nil
+	return unvalidated.(*Client), nil
 }
 
-func (cm *ClientManager) UpdateAPIKey(chatID int64) error {
+func (cm *Manager) UpdateAPIKey(chatID int64) error {
 	apiKey, err := storage.GetAPIKey(chatID)
 	if err != nil {
 		return err

@@ -1,4 +1,4 @@
-package notify
+package notification
 
 import (
 	"time"
@@ -11,21 +11,21 @@ type Command struct {
 	NewInterval time.Duration
 }
 
-type NotifyScheduler struct {
+type Scheduler struct {
 	interval  time.Duration
 	commandCh chan Command
 	stopCh    chan struct{}
 }
 
-func NewNotifyScheduler(interval time.Duration) *NotifyScheduler {
-	return &NotifyScheduler{
+func NewScheduler(interval time.Duration) *Scheduler {
+	return &Scheduler{
 		interval:  interval,
 		commandCh: make(chan Command),
 		stopCh:    make(chan struct{}),
 	}
 }
 
-func (ns *NotifyScheduler) Start(
+func (s *Scheduler) Start(
 	chatID int64,
 	notificationCh chan Notification,
 	client *client.Client,
@@ -33,18 +33,19 @@ func (ns *NotifyScheduler) Start(
 	go func() {
 		Notify(chatID, notificationCh, client)
 
-		ticker := time.NewTicker(ns.interval)
+		ticker := time.NewTicker(s.interval)
 		defer ticker.Stop()
 
 		for {
 			select {
-			case <-ns.stopCh:
+			case <-s.stopCh:
 				return
-			case cmd := <-ns.commandCh:
+			case cmd := <-s.commandCh:
 				if cmd.ChatID == chatID {
 					ticker.Stop()
-					ns.interval = cmd.NewInterval
-					ticker = time.NewTicker(ns.interval)
+
+					s.interval = cmd.NewInterval
+					ticker = time.NewTicker(s.interval)
 				}
 			case <-ticker.C:
 				Notify(chatID, notificationCh, client)
@@ -53,13 +54,13 @@ func (ns *NotifyScheduler) Start(
 	}()
 }
 
-func (ns *NotifyScheduler) Stop() {
-	close(ns.stopCh)
+func (s *Scheduler) Stop() {
+	close(s.stopCh)
 }
 
-func (ns *NotifyScheduler) UpdateInterval(
+func (s *Scheduler) UpdateInterval(
 	chatID int64,
 	newInterval time.Duration,
 ) {
-	ns.commandCh <- Command{ChatID: chatID, NewInterval: newInterval}
+	s.commandCh <- Command{ChatID: chatID, NewInterval: newInterval}
 }

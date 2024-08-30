@@ -5,8 +5,7 @@ import (
 )
 
 func (b *Bot) handleLogin(update tgbotapi.Update) {
-	message :=
-		`
+	message := `
 Please set your API key:
 /apikey [key]
 
