@@ -33,8 +33,14 @@ func (m *Manager) UpdateAPIKey(chatID int64) error {
 		return err
 	}
 
-	c := NewClient(apiKey)
-	m.clients.Store(chatID, c)
+	unvalidated, ok := m.clients.Load(chatID)
+	if ok {
+		client := unvalidated.(*Client)
+		client.UpdateAPIKey(apiKey)
+	} else {
+		c := NewClient(apiKey)
+		m.clients.Store(chatID, c)
+	}
 
 	return nil
 }

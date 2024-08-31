@@ -37,6 +37,10 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
+func (c *Client) UpdateAPIKey(apiKey string) {
+	c.apiKey = apiKey
+}
+
 func (c *Client) GetLatestSubtitleTime(titleID int64) (int64, error) {
 	entryData, err := c.GetEntryData(titleID)
 	if err != nil {

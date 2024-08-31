@@ -64,7 +64,8 @@ func main() {
 	for _, user := range users {
 		if err := notificationManager.AddScheduler(
 			user.ChatID,
-			time.Duration(int(time.Hour)*user.NotificationInterval)); err != nil {
+			time.Duration(int(time.Hour)*user.NotificationInterval),
+		); err != nil {
 			log.Fatal("failed to add scheduler", "user", user)
 		}
 	}
