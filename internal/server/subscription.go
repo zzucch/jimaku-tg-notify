@@ -87,7 +87,7 @@ func (s *Server) ListSubscriptions(
 ) ([]storage.Subscription, error) {
 	subscriptions, err := storage.GetAllSubscriptions(chatID)
 	if err != nil {
-		log.Warn(
+		log.Error(
 			"failed to get all subscriptions",
 			"chatID",
 			chatID,
@@ -98,4 +98,25 @@ func (s *Server) ListSubscriptions(
 	}
 
 	return subscriptions, nil
+}
+
+func (s *Server) SetLatestTimestamp(
+	chatID int64,
+	titleID int64,
+	latestTimestamp int64,
+) {
+	if err := storage.SetLatestSubtitleTimestamp(
+		chatID,
+		titleID,
+		latestTimestamp,
+	); err != nil {
+		log.Error(
+			"failed to set latest timestamp",
+			"chatID",
+			chatID,
+			"titleID",
+			titleID,
+			"err",
+			err)
+	}
 }

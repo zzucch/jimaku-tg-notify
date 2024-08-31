@@ -10,13 +10,13 @@ import (
 type Manager struct {
 	schedulers     sync.Map
 	clientManager  *client.Manager
-	updateCh       chan Update
+	updateCh       chan SchedulerUpdate
 	notificationCh chan Notification
 }
 
 func NewManager(
 	clientManager *client.Manager,
-	updateCh chan Update,
+	updateCh chan SchedulerUpdate,
 	notificationCh chan Notification,
 ) *Manager {
 	return &Manager{

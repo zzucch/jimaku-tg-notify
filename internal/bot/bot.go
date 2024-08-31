@@ -79,6 +79,13 @@ func (b *Bot) handleNotifications() {
 
 			for notification := range b.notificationCh {
 				b.SendMessage(notification.ChatID, notification.Message)
+
+				for _, update := range notification.Updates {
+					b.server.SetLatestTimestamp(
+						notification.ChatID,
+						update.TitleID,
+						update.LatestTimestamp)
+				}
 			}
 		}()
 	}

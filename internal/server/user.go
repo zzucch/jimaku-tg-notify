@@ -19,7 +19,7 @@ func (s *Server) AddUser(chatID int64) error {
 		return err
 	}
 
-	s.updateCh <- notification.Update{
+	s.updateCh <- notification.SchedulerUpdate{
 		ChatID:   user.ChatID,
 		Interval: time.Duration(user.NotificationInterval * int(time.Hour)),
 	}
@@ -43,7 +43,7 @@ func (s *Server) SetInterval(
 		return err
 	}
 
-	s.updateCh <- notification.Update{
+	s.updateCh <- notification.SchedulerUpdate{
 		ChatID:   chatID,
 		Interval: time.Duration(interval) * time.Hour,
 	}

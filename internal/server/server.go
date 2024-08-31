@@ -10,13 +10,13 @@ import (
 type Server struct {
 	users         sync.Map
 	clientManager *client.Manager
-	updateCh      chan notification.Update
+	updateCh      chan notification.SchedulerUpdate
 }
 
 func NewServer(
 	chatIDs []int64,
 	clientManager *client.Manager,
-	updateCh chan notification.Update,
+	updateCh chan notification.SchedulerUpdate,
 ) *Server {
 	server := &Server{
 		users:         sync.Map{},

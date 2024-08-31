@@ -13,6 +13,12 @@ import (
 type Notification struct {
 	ChatID  int64
 	Message string
+	Updates []Update
+}
+
+type Update struct {
+	TitleID         int64
+	LatestTimestamp int64
 }
 
 func Notify(
@@ -37,9 +43,26 @@ func Notify(
 		}
 	}
 
+	updates := make([]Update, 0, len(subscriptions))
+
 	for _, subscription := range subscriptions {
-		notificationMessageSB.WriteString(
-			getNotificationMessage(subscription, client))
+		update, err := getUpdate(subscription.TitleID, client)
+		if err != nil {
+			log.Warn(
+				"failed to get update",
+				"titleID",
+				subscription.TitleID,
+				"err",
+				err)
+		}
+
+		message := getUpdateMessage(subscription, update, err)
+		notificationMessageSB.WriteString(message)
+
+		if err == nil &&
+			subscription.LatestSubtitleTime != update.LatestTimestamp {
+			updates = append(updates, update)
+		}
 	}
 
 	if notificationMessageSB.Len() == 0 {
@@ -49,40 +72,45 @@ func Notify(
 	notificationCh <- Notification{
 		ChatID:  chatID,
 		Message: notificationMessageSB.String(),
+    Updates: updates,
 	}
 }
 
-func getNotificationMessage(
-	subscription storage.Subscription,
+func getUpdate(
+	titleID int64,
 	client *client.Client,
-) string {
-	latestSubtitleTime, err := client.GetLatestSubtitleTime(subscription.TitleID)
+) (Update, error) {
+	latestTimestamp, err := client.GetLatestSubtitleTime(titleID)
 	if err != nil {
-		log.Warn(
-			"failed to get latest subtitle date",
-			"titleID",
-			subscription.TitleID,
-			"err",
-			err)
+		return Update{}, err
+	}
 
-		var sb strings.Builder
+	return Update{
+		TitleID:         titleID,
+		LatestTimestamp: latestTimestamp,
+	}, nil
+}
 
+func getUpdateMessage(
+	subscription storage.Subscription,
+	update Update,
+	err error,
+) string {
+	var sb strings.Builder
+
+	if err != nil {
 		sb.WriteString("Failed to get latest subtitle date for jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(":\n")
 		sb.WriteString(err.Error())
 		sb.WriteString("\n\n")
-
-		return sb.String()
+	} else if subscription.LatestSubtitleTime != update.LatestTimestamp {
+		sb.WriteString("Update at jimaku.cc/entry/")
+		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
+		sb.WriteString(" at ")
+		sb.WriteString(util.TimestampToString(subscription.LatestSubtitleTime))
+		sb.WriteString("\n")
 	}
 
-	if subscription.LatestSubtitleTime == latestSubtitleTime {
-		return ""
-	}
-
-	return "Update at jimaku.cc/entry/" +
-		strconv.FormatInt(subscription.TitleID, 10) +
-		" at time " +
-		util.TimestampToString(subscription.LatestSubtitleTime) +
-		"\n"
+	return sb.String()
 }

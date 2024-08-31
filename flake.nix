@@ -24,12 +24,17 @@
           pkgs = import nixpkgs {
             inherit system;
             overlays = [self.overlays.default];
-            # config.allowUnfree = true;
           };
         });
   in {
     overlays.default = final: prev: {
-      buildGoApplication = gomod2nix.legacyPackages.${prev.stdenv.system}.buildGoApplication;
+      buildGoApplication =
+        gomod2nix
+        .legacyPackages
+        .${
+          prev.stdenv.system
+        }
+        .buildGoApplication;
       gomod2nixPkg = gomod2nix.packages.${prev.stdenv.system}.default;
     };
     devShells = forEachSupportedSystem ({pkgs}: {
@@ -49,7 +54,7 @@
     packages = forEachSupportedSystem ({pkgs, ...}: rec {
       jimaku-tg-notify = pkgs.buildGoApplication {
         pname = "jimaku-tg-notify";
-        version = "0.0.1";
+        version = "0.0.3";
         src = self;
         modules = ./gomod2nix.toml;
       };

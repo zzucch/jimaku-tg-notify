@@ -43,7 +43,7 @@ func main() {
 		chatIDs = append(chatIDs, user.ChatID)
 	}
 
-	updateCh := make(chan notification.Update, runtime.NumCPU())
+	updateCh := make(chan notification.SchedulerUpdate, runtime.NumCPU())
 	notificationCh := make(chan notification.Notification, runtime.NumCPU())
 
 	clientManager := &client.Manager{}
@@ -59,7 +59,7 @@ func main() {
 		updateCh,
 		notificationCh)
 
-	go notificationManager.WatchForUpdates()
+	go notificationManager.WatchForSchedulerUpdates()
 
 	for _, user := range users {
 		if err := notificationManager.AddScheduler(
