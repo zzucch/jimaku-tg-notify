@@ -72,7 +72,7 @@ func Notify(
 	notificationCh <- Notification{
 		ChatID:  chatID,
 		Message: notificationMessageSB.String(),
-    Updates: updates,
+		Updates: updates,
 	}
 }
 
@@ -108,7 +108,7 @@ func getUpdateMessage(
 		sb.WriteString("Update at jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
-		sb.WriteString(util.TimestampToString(subscription.LatestSubtitleTime))
+		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
 		sb.WriteString("\n")
 	}
 
