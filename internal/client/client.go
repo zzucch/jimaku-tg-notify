@@ -87,7 +87,19 @@ func (c *Client) getResponse(url string, attempts int) (string, error) {
 
 		response, err := c.httpClient.Do(request)
 		if err != nil {
-			return "", err
+			if attempt < attempts-1 {
+				log.Warn(
+					"failed to do http request",
+					"url",
+					url,
+					"attempt",
+					attempt+1,
+					"err",
+					err)
+        continue
+			}
+
+      return "", err
 		}
 		defer response.Body.Close()
 
