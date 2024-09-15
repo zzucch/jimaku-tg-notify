@@ -62,17 +62,37 @@ func Notify(
 
 		if err == nil {
 			if subscription.LatestSubtitleTime != update.LatestTimestamp {
-				storage.SetLatestSubtitleTimestamp(
+				if err := storage.SetLatestSubtitleTimestamp(
 					chatID,
 					subscription.TitleID,
-					update.LatestTimestamp)
+					update.LatestTimestamp,
+				); err != nil {
+					log.Error(
+						"failed to set latest timestamp",
+						"chatID",
+						chatID,
+						"update",
+						update,
+						"err",
+						err)
+				}
 			}
 
 			if subscription.JapaneseName != update.JapaneseName {
-				storage.SetJapaneseName(
+				if err := storage.SetJapaneseName(
 					chatID,
 					subscription.TitleID,
-					update.JapaneseName)
+					update.JapaneseName,
+				); err != nil {
+					log.Error(
+						"failed to set japanese name",
+						"chatID",
+						chatID,
+						"update",
+						update,
+						"err",
+						err)
+				}
 			}
 
 			if update.LatestTimestamp != 0 && update.JapaneseName != "" {
