@@ -54,7 +54,7 @@
     packages = forEachSupportedSystem ({pkgs, ...}: rec {
       jimaku-tg-notify = pkgs.buildGoApplication {
         pname = "jimaku-tg-notify";
-        version = "0.0.3";
+        version = "0.0.4";
         src = self;
         modules = ./gomod2nix.toml;
       };

@@ -19,7 +19,7 @@ type Notification struct {
 type Update struct {
 	TitleID         int64
 	LatestTimestamp int64
-	Name            string
+	JapaneseName    string
 }
 
 func Notify(
@@ -60,13 +60,36 @@ func Notify(
 		message := getUpdateMessage(subscription, update, err)
 		notificationMessageSB.WriteString(message)
 
-		if err == nil &&
-			subscription.LatestSubtitleTime != update.LatestTimestamp {
-			updates = append(updates, update)
+		if err == nil {
+			if subscription.LatestSubtitleTime != update.LatestTimestamp {
+				storage.SetLatestSubtitleTimestamp(
+					chatID,
+					subscription.TitleID,
+					update.LatestTimestamp)
+			}
+
+			if subscription.JapaneseName != update.JapaneseName {
+				storage.SetJapaneseName(
+					chatID,
+					subscription.TitleID,
+					update.JapaneseName)
+			}
+
+			if update.LatestTimestamp != 0 && update.JapaneseName != "" {
+				updates = append(updates, update)
+			}
 		}
 	}
 
 	if notificationMessageSB.Len() == 0 {
+		if len(updates) != 0 {
+			notificationCh <- Notification{
+				ChatID:  chatID,
+				Message: "",
+				Updates: updates,
+			}
+		}
+
 		return
 	}
 
@@ -94,7 +117,7 @@ func getUpdate(
 	return Update{
 		TitleID:         titleID,
 		LatestTimestamp: latestTimestamp,
-		Name:            entry.JapaneseName,
+		JapaneseName:    entry.JapaneseName,
 	}, nil
 }
 
@@ -110,16 +133,18 @@ func getUpdateMessage(
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(":\n")
 		sb.WriteString(err.Error())
-		sb.WriteString("\n\n")
 	} else if subscription.LatestSubtitleTime != update.LatestTimestamp {
-		sb.WriteString(update.Name)
+		sb.WriteString(update.JapaneseName)
 		sb.WriteString("\n")
 		sb.WriteString("jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
 		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
-		sb.WriteString("\n\n")
+	} else {
+		return ""
 	}
+
+	sb.WriteString("\n\n")
 
 	return sb.String()
 }

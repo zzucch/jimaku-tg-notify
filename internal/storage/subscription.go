@@ -118,3 +118,25 @@ func SetLatestSubtitleTimestamp(
 
 	return nil
 }
+
+func SetJapaneseName(
+	chatID, titleID int64,
+	japaneseName string,
+) error {
+	var subscription Subscription
+
+	if err := db.Where(
+		"chat_id = ? AND title_id = ?",
+		chatID,
+		titleID).First(&subscription).Error; err != nil {
+		return errors.New("Subscription not found")
+	}
+
+	subscription.JapaneseName = japaneseName
+
+	if err := db.Save(&subscription).Error; err != nil {
+		return errors.New("Failed to update japanese name")
+	}
+
+	return nil
+}

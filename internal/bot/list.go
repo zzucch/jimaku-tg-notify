@@ -24,10 +24,12 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		messageSB.WriteString(subscribeCommand)
 		messageSB.WriteString(" [title_id]")
 	} else {
-		messageSB.WriteString("Subscriptions list (entry - last update):")
+		messageSB.WriteString("Subscriptions list (entry, last update):")
 	}
 
 	for _, subscription := range subscriptions {
+		messageSB.WriteString("\n\n")
+		messageSB.WriteString(subscription.JapaneseName)
 		messageSB.WriteString("\njimaku.cc/entry/")
 		messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		messageSB.WriteString(" - ")

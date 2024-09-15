@@ -135,3 +135,24 @@ func (s *Server) SetLatestTimestamp(
 			err)
 	}
 }
+
+func (s *Server) SetJapaneseName(
+	chatID int64,
+	titleID int64,
+	japaneseName string,
+) {
+	if err := storage.SetJapaneseName(
+		chatID,
+		titleID,
+		japaneseName,
+	); err != nil {
+		log.Error(
+			"failed to set japanese name",
+			"chatID",
+			chatID,
+			"japanese name",
+			japaneseName,
+			"err",
+			err)
+	}
+}
