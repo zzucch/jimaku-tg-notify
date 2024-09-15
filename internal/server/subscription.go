@@ -33,9 +33,20 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return errors.New("Already subscribed")
 	}
 
-	latestSubtitleTime, err := client.GetLatestSubtitleTime(titleID)
+	entry, err := client.GetEntryData(titleID)
 	if err != nil {
-		log.Warn("failed to get latest subtitle date",
+		log.Warn("failed to get entry data",
+			"titleID",
+			titleID,
+			"err",
+			err)
+
+		return err
+	}
+
+	latestSubtitleTimestamp, err := entry.GetLatestSubtitleTimestamp()
+	if err != nil {
+		log.Warn("failed to get latest subtitle timestamp",
 			"titleID",
 			titleID,
 			"err",
@@ -47,7 +58,9 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 	if err := storage.Subscribe(
 		chatID,
 		titleID,
-		latestSubtitleTime); err != nil {
+		latestSubtitleTimestamp,
+		entry.JapaneseName,
+	); err != nil {
 		log.Warn(
 			"failed to subscribe",
 			"chatID",
@@ -55,7 +68,9 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 			"titleID",
 			titleID,
 			"latestSubtitleTime",
-			latestSubtitleTime,
+			latestSubtitleTimestamp,
+			"entry",
+			entry,
 			"err",
 			err)
 

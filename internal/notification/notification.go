@@ -19,6 +19,7 @@ type Notification struct {
 type Update struct {
 	TitleID         int64
 	LatestTimestamp int64
+	Name            string
 }
 
 func Notify(
@@ -71,7 +72,7 @@ func Notify(
 
 	notificationCh <- Notification{
 		ChatID:  chatID,
-		Message: notificationMessageSB.String(),
+		Message: "Updates:\n" + notificationMessageSB.String(),
 		Updates: updates,
 	}
 }
@@ -80,7 +81,12 @@ func getUpdate(
 	titleID int64,
 	client *client.Client,
 ) (Update, error) {
-	latestTimestamp, err := client.GetLatestSubtitleTime(titleID)
+	entry, err := client.GetEntryData(titleID)
+	if err != nil {
+		return Update{}, err
+	}
+
+	latestTimestamp, err := entry.GetLatestSubtitleTimestamp()
 	if err != nil {
 		return Update{}, err
 	}
@@ -88,6 +94,7 @@ func getUpdate(
 	return Update{
 		TitleID:         titleID,
 		LatestTimestamp: latestTimestamp,
+		Name:            entry.JapaneseName,
 	}, nil
 }
 
@@ -105,11 +112,13 @@ func getUpdateMessage(
 		sb.WriteString(err.Error())
 		sb.WriteString("\n\n")
 	} else if subscription.LatestSubtitleTime != update.LatestTimestamp {
-		sb.WriteString("Update at jimaku.cc/entry/")
+		sb.WriteString(update.Name)
+		sb.WriteString("\n")
+		sb.WriteString("jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
 		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
-		sb.WriteString("\n")
+		sb.WriteString("\n\n")
 	}
 
 	return sb.String()

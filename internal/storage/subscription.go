@@ -10,9 +10,13 @@ type Subscription struct {
 	TitleID            int64 `gorm:"primaryKey"`
 	ChatID             int64
 	LatestSubtitleTime int64
+	JapaneseName       string
 }
 
-func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
+func Subscribe(
+	chatID, titleID, latestSubtitleTime int64,
+	japaneseName string,
+) error {
 	var existingSubscription Subscription
 
 	err := db.Where(
@@ -29,6 +33,7 @@ func Subscribe(chatID, titleID, latestSubtitleTime int64) error {
 		TitleID:            titleID,
 		ChatID:             chatID,
 		LatestSubtitleTime: latestSubtitleTime,
+		JapaneseName:       japaneseName,
 	}
 
 	if err := db.Create(&subscription).Error; err != nil {

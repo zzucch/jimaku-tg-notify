@@ -8,20 +8,11 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/log"
+	"github.com/zzucch/jimaku-tg-notify/internal/dto"
 	"github.com/zzucch/jimaku-tg-notify/internal/rate"
-	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
 const attemptsAmount = 5
-
-type Entry struct {
-	ID           int64  `json:"id"`
-	Name         string `json:"name"`
-	LastModified string `json:"last_modified"`
-	AnilistID    int64  `json:"anilist_id"`
-	EnglishName  string `json:"english_name"`
-	JapaneseName string `json:"japanese_name"`
-}
 
 type Client struct {
 	apiKey     string
@@ -41,22 +32,7 @@ func (c *Client) UpdateAPIKey(apiKey string) {
 	c.apiKey = apiKey
 }
 
-func (c *Client) GetLatestSubtitleTime(titleID int64) (int64, error) {
-	entryData, err := c.GetEntryData(titleID)
-	if err != nil {
-		return 0, err
-	}
-
-	latestSubtitleTime, err := util.RFC3339ToUnixTimestamp(
-		entryData.LastModified)
-	if err != nil {
-		return 0, err
-	}
-
-	return latestSubtitleTime, nil
-}
-
-func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
+func (c *Client) GetEntryData(titleID int64) (*dto.Entry, error) {
 	url := "https://jimaku.cc/api/entries/" +
 		strconv.FormatInt(titleID, 10)
 
@@ -65,7 +41,7 @@ func (c *Client) GetEntryData(titleID int64) (*Entry, error) {
 		return nil, err
 	}
 
-	var entry Entry
+	var entry dto.Entry
 	if err = json.Unmarshal([]byte(response), &entry); err != nil {
 		return nil, err
 	}
@@ -96,10 +72,10 @@ func (c *Client) getResponse(url string, attempts int) (string, error) {
 					attempt+1,
 					"err",
 					err)
-        continue
+				continue
 			}
 
-      return "", err
+			return "", err
 		}
 		defer response.Body.Close()
 
