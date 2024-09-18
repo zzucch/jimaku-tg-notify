@@ -13,7 +13,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 
 	subscriptions, err := b.server.ListSubscriptions(chatID)
 	if err != nil {
-		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 	}
 
 	var messageSB strings.Builder
@@ -37,5 +37,5 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 			util.TimestampToString(subscription.LatestSubtitleTime))
 	}
 
-	b.SendMessage(chatID, messageSB.String())
+	_ = b.SendMessage(chatID, messageSB.String())
 }

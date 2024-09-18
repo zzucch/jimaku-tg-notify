@@ -9,6 +9,7 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/config"
 	"github.com/zzucch/jimaku-tg-notify/internal/notification"
 	"github.com/zzucch/jimaku-tg-notify/internal/server"
+	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
 type Bot struct {
@@ -79,11 +80,58 @@ func (b *Bot) handleNotifications() {
 
 			for notification := range b.notificationCh {
 				if notification.Message != "" {
-					b.SendMessage(notification.ChatID, notification.Message)
+					if err := b.SendMessage(
+						notification.ChatID,
+						notification.Message,
+					); err != nil {
+						for _, update := range notification.Updates {
+							updateStorage(notification.ChatID, update)
+						}
+					}
+				} else if len(notification.Updates) > 0 {
+					for _, update := range notification.Updates {
+						updateStorage(notification.ChatID, update)
+					}
 				}
 			}
 		}()
 	}
 
 	wg.Wait()
+}
+
+func updateStorage(chatID int64, update notification.Update) {
+	if update.LatestTimestamp != 0 {
+		if err := storage.SetLatestSubtitleTimestamp(
+			chatID,
+			update.TitleID,
+			update.LatestTimestamp,
+		); err != nil {
+			log.Error(
+				"failed to set latest timestamp",
+				"chatID",
+				chatID,
+				"update",
+				update,
+				"err",
+				err)
+		}
+	}
+
+	if update.JapaneseName != "" {
+		if err := storage.SetJapaneseName(
+			chatID,
+			update.TitleID,
+			update.JapaneseName,
+		); err != nil {
+			log.Error(
+				"failed to set japanese name",
+				"chatID",
+				chatID,
+				"update",
+				update,
+				"err",
+				err)
+		}
+	}
 }

@@ -27,14 +27,14 @@ func (b *Bot) handleSubscription(
 
 	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
 	if unvalidatedTitleID == "" || err != nil || titleID < 0 {
-		b.SendMessage(chatID, "Example usage:\n"+command+" 123")
+		_ = b.SendMessage(chatID, "Example usage:\n"+command+" 123")
 		return
 	}
 
 	if err := action(chatID, titleID); err != nil {
-		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 
-	b.SendMessage(update.Message.From.ID, "Done")
+	_ = b.SendMessage(update.Message.From.ID, "Done")
 }

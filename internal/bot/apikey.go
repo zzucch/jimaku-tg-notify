@@ -14,7 +14,7 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 	split := strings.Split(apiKey, " ")
 
 	if apiKey == "" || len(split) > 1 {
-		b.SendMessage(
+		_ = b.SendMessage(
 			chatID,
 			"Example usage:\n"+
 				apiKeyCommand+
@@ -24,7 +24,7 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 	}
 
 	if err := b.server.SetAPIKey(chatID, apiKey); err != nil {
-		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 
@@ -32,6 +32,6 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 		b.cache.insert(chatID)
 		b.handleHelp(update)
 	} else {
-		b.SendMessage(chatID, "Done")
+		_ = b.SendMessage(chatID, "Done")
 	}
 }

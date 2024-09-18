@@ -17,20 +17,20 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 
 	interval, err := strconv.Atoi(unvalidatedInterval)
 	if unvalidatedInterval == "" || err != nil {
-		b.SendMessage(chatID, "Example usage:\n"+intervalCommand+" 24")
+		_ = b.SendMessage(chatID, "Example usage:\n"+intervalCommand+" 24")
 		return
 	}
 
 	const maxSupportedInterval = int(math.MaxInt64 / time.Hour)
 	if interval > maxSupportedInterval {
-		b.SendMessage(chatID, "Do not use unreasonably long interval")
+		_ = b.SendMessage(chatID, "Do not use unreasonably long interval")
 		return
 	}
 
 	if err := b.server.SetInterval(chatID, interval); err != nil {
-		b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 
-	b.SendMessage(chatID, "Done")
+	_ = b.SendMessage(chatID, "Done")
 }

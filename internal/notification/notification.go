@@ -1,13 +1,11 @@
 package notification
 
 import (
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
-	"github.com/zzucch/jimaku-tg-notify/internal/util"
 )
 
 type Notification struct {
@@ -17,9 +15,10 @@ type Notification struct {
 }
 
 type Update struct {
-	TitleID         int64
-	LatestTimestamp int64
-	JapaneseName    string
+	TitleID           int64
+	LatestTimestamp   int64
+	JapaneseName      string
+	NewFileEntryNames []string
 }
 
 func Notify(
@@ -61,40 +60,8 @@ func Notify(
 		notificationMessageSB.WriteString(message)
 
 		if err == nil {
-			if subscription.LatestSubtitleTime != update.LatestTimestamp {
-				if err := storage.SetLatestSubtitleTimestamp(
-					chatID,
-					subscription.TitleID,
-					update.LatestTimestamp,
-				); err != nil {
-					log.Error(
-						"failed to set latest timestamp",
-						"chatID",
-						chatID,
-						"update",
-						update,
-						"err",
-						err)
-				}
-			}
 
-			if subscription.JapaneseName != update.JapaneseName {
-				if err := storage.SetJapaneseName(
-					chatID,
-					subscription.TitleID,
-					update.JapaneseName,
-				); err != nil {
-					log.Error(
-						"failed to set japanese name",
-						"chatID",
-						chatID,
-						"update",
-						update,
-						"err",
-						err)
-				}
-			}
-
+      // TODO: figure this out
 			if update.LatestTimestamp != 0 && update.JapaneseName != "" {
 				updates = append(updates, update)
 			}
@@ -139,32 +106,4 @@ func getUpdate(
 		LatestTimestamp: latestTimestamp,
 		JapaneseName:    entry.JapaneseName,
 	}, nil
-}
-
-func getUpdateMessage(
-	subscription storage.Subscription,
-	update Update,
-	err error,
-) string {
-	var sb strings.Builder
-
-	if err != nil {
-		sb.WriteString("Failed to get latest subtitle date for jimaku.cc/entry/")
-		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
-		sb.WriteString(":\n")
-		sb.WriteString(err.Error())
-	} else if subscription.LatestSubtitleTime != update.LatestTimestamp {
-		sb.WriteString(update.JapaneseName)
-		sb.WriteString("\n")
-		sb.WriteString("jimaku.cc/entry/")
-		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
-		sb.WriteString(" at ")
-		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
-	} else {
-		return ""
-	}
-
-	sb.WriteString("\n\n")
-
-	return sb.String()
 }

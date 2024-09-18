@@ -28,5 +28,5 @@ How to get Title ID:
 For example, the jimaku entry for 「逃げるは恥だが役に立つ」 is https://jimaku.cc/entry/3331, so the Title ID would be 3331
 `
 
-	b.SendMessage(update.Message.From.ID, helpMessage)
+	_ = b.SendMessage(update.Message.From.ID, helpMessage)
 }

@@ -15,7 +15,7 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 
 	err := b.server.AddUser(update.Message.From.ID)
 	if err != nil {
-		b.SendMessage(
+		_ = b.SendMessage(
 			chatID,
 			"Failed due to a critical error - contact the developers")
 
@@ -32,7 +32,7 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 
 	if !b.cache.exists(chatID) {
 		if exists, err := b.server.ValidateAPIKey(chatID); err != nil {
-			b.SendMessage(
+			_ = b.SendMessage(
 				chatID,
 				"Failed due to a critical error - contact the developers")
 

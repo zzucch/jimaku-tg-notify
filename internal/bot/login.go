@@ -12,5 +12,5 @@ Please set your API key:
 If you have not generated an API key yet, you can do so on your account page: jimaku.cc/login
 `
 
-	b.SendMessage(update.Message.From.ID, message)
+	_ = b.SendMessage(update.Message.From.ID, message)
 }

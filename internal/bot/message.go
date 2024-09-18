@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 const maxRetries = 5
 
-func (b *Bot) SendMessage(chatID int64, text string) {
+func (b *Bot) SendMessage(chatID int64, text string) error {
 	message := tgbotapi.NewMessage(chatID, text)
 
 	for retry := 0; retry < maxRetries; retry++ {
@@ -27,10 +28,12 @@ func (b *Bot) SendMessage(chatID int64, text string) {
 			log.Error("failed to send message", "err", err, "retry", retry)
 		}
 
-		return
+		return nil
 	}
 
 	log.Error("failed to send message", "max retries", maxRetries)
+
+	return fmt.Errorf("failed to send message after %d retries", maxRetries)
 }
 
 func getRetryAfterDuration(err error) (time.Duration, bool) {
