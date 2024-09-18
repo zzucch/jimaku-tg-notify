@@ -13,6 +13,7 @@ const attemptsAmount = 5
 
 type Client struct {
 	apiKey     string
+	apiBaseURL string
 	httpClient *http.Client
 	limiter    *rate.Limiter
 }
@@ -20,6 +21,7 @@ type Client struct {
 func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:     apiKey,
+		apiBaseURL: "https://jimaku.cc/api",
 		httpClient: &http.Client{},
 		limiter:    rate.NewLimiter(),
 	}
@@ -30,8 +32,7 @@ func (c *Client) UpdateAPIKey(apiKey string) {
 }
 
 func (c *Client) GetEntryDetails(titleID int64) (*dto.Entry, error) {
-	url := "https://jimaku.cc/api/entries/" +
-		strconv.FormatInt(titleID, 10)
+	url := c.apiBaseURL + "/entries/" + strconv.FormatInt(titleID, 10)
 
 	response, err := c.getResponse(url, attemptsAmount)
 	if err != nil {
@@ -39,6 +40,25 @@ func (c *Client) GetEntryDetails(titleID int64) (*dto.Entry, error) {
 	}
 
 	var entry dto.Entry
+	if err = json.Unmarshal([]byte(response), &entry); err != nil {
+		return nil, err
+	}
+
+	return &entry, nil
+}
+
+func (c *Client) GetEntryFiles(titleID int64) (*dto.FileEntry, error) {
+	url := c.apiBaseURL +
+		"/entries/" +
+		strconv.FormatInt(titleID, 10) +
+		"/files"
+
+	response, err := c.getResponse(url, attemptsAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	var entry dto.FileEntry
 	if err = json.Unmarshal([]byte(response), &entry); err != nil {
 		return nil, err
 	}
