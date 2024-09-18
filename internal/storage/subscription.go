@@ -13,13 +13,13 @@ type Subscription struct {
 	JapaneseName string
 }
 
-func Subscribe(
+func (s *Storage) Subscribe(
 	chatID, titleID, latestSubtitleTime int64,
 	japaneseName string,
 ) error {
 	var existingSubscription Subscription
 
-	err := db.Where(
+	err := s.db.Where(
 		"chat_id = ? AND title_id = ?",
 		chatID,
 		titleID).First(&existingSubscription).Error
@@ -36,17 +36,17 @@ func Subscribe(
 		JapaneseName: japaneseName,
 	}
 
-	if err := db.Create(&subscription).Error; err != nil {
+	if err := s.db.Create(&subscription).Error; err != nil {
 		return errors.New("Failed to subscribe")
 	}
 
 	return nil
 }
 
-func Unsubscribe(chatID, titleID int64) error {
+func (s *Storage) Unsubscribe(chatID, titleID int64) error {
 	var subscription Subscription
 
-	err := db.Where(
+	err := s.db.Where(
 		"title_id = ? AND chat_id = ?",
 		titleID,
 		chatID).First(&subscription).Error
@@ -56,7 +56,7 @@ func Unsubscribe(chatID, titleID int64) error {
 		return errors.New("Failed to unsubscribe")
 	}
 
-	if err := db.Delete(
+	if err := s.db.Delete(
 		&Subscription{},
 		"title_id = ? AND chat_id = ?",
 		titleID,
@@ -67,10 +67,10 @@ func Unsubscribe(chatID, titleID int64) error {
 	return nil
 }
 
-func SubscriptionExists(chatID, titleID int64) (bool, error) {
+func (s *Storage) SubscriptionExists(chatID, titleID int64) (bool, error) {
 	var subscription Subscription
 
-	err := db.Where(
+	err := s.db.Where(
 		"chat_id = ? AND title_id = ?",
 		chatID,
 		titleID).First(&subscription).Error
@@ -84,10 +84,10 @@ func SubscriptionExists(chatID, titleID int64) (bool, error) {
 	return true, nil
 }
 
-func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
+func (s *Storage) GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	var subscriptions []Subscription
 
-	if err := db.Where(
+	if err := s.db.Where(
 		"chat_id = ?",
 		chatID).Find(&subscriptions).Error; err != nil {
 		return nil, errors.New("Failed to get subscriptions")
@@ -96,14 +96,14 @@ func GetAllSubscriptions(chatID int64) ([]Subscription, error) {
 	return subscriptions, nil
 }
 
-func SetLatestSubtitleTimestamp(
+func (s *Storage) SetLatestSubtitleTimestamp(
 	chatID,
 	titleID,
 	latestSubtitleTime int64,
 ) error {
 	var subscription Subscription
 
-	if err := db.Where(
+	if err := s.db.Where(
 		"chat_id = ? AND title_id = ?",
 		chatID,
 		titleID).First(&subscription).Error; err != nil {
@@ -112,20 +112,20 @@ func SetLatestSubtitleTimestamp(
 
 	subscription.LastModified = latestSubtitleTime
 
-	if err := db.Save(&subscription).Error; err != nil {
+	if err := s.db.Save(&subscription).Error; err != nil {
 		return errors.New("Failed to update latest subtitle timestamp")
 	}
 
 	return nil
 }
 
-func SetJapaneseName(
+func (s *Storage) SetJapaneseName(
 	chatID, titleID int64,
 	japaneseName string,
 ) error {
 	var subscription Subscription
 
-	if err := db.Where(
+	if err := s.db.Where(
 		"chat_id = ? AND title_id = ?",
 		chatID,
 		titleID).First(&subscription).Error; err != nil {
@@ -134,7 +134,7 @@ func SetJapaneseName(
 
 	subscription.JapaneseName = japaneseName
 
-	if err := db.Save(&subscription).Error; err != nil {
+	if err := s.db.Save(&subscription).Error; err != nil {
 		return errors.New("Failed to update japanese name")
 	}
 

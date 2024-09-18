@@ -20,7 +20,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return err
 	}
 
-	exists, err := storage.SubscriptionExists(chatID, titleID)
+	exists, err := s.store.SubscriptionExists(chatID, titleID)
 	if err != nil {
 		log.Warn("failed to get subscription existence",
 			"titleID",
@@ -55,7 +55,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return err
 	}
 
-	if err := storage.Subscribe(
+	if err := s.store.Subscribe(
 		chatID,
 		titleID,
 		latestSubtitleTimestamp,
@@ -81,7 +81,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 }
 
 func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
-	if err := storage.Unsubscribe(chatID, titleID); err != nil {
+	if err := s.store.Unsubscribe(chatID, titleID); err != nil {
 		log.Warn(
 			"failed to unsubscribe",
 			"chatID",
@@ -100,7 +100,7 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
 func (s *Server) ListSubscriptions(
 	chatID int64,
 ) ([]storage.Subscription, error) {
-	subscriptions, err := storage.GetAllSubscriptions(chatID)
+	subscriptions, err := s.store.GetAllSubscriptions(chatID)
 	if err != nil {
 		log.Error(
 			"failed to get all subscriptions",
@@ -120,7 +120,7 @@ func (s *Server) SetLatestTimestamp(
 	titleID int64,
 	latestTimestamp int64,
 ) {
-	if err := storage.SetLatestSubtitleTimestamp(
+	if err := s.store.SetLatestSubtitleTimestamp(
 		chatID,
 		titleID,
 		latestTimestamp,
@@ -141,7 +141,7 @@ func (s *Server) SetJapaneseName(
 	titleID int64,
 	japaneseName string,
 ) {
-	if err := storage.SetJapaneseName(
+	if err := s.store.SetJapaneseName(
 		chatID,
 		titleID,
 		japaneseName,

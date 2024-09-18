@@ -21,14 +21,15 @@ type Update struct {
 	NewFileEntryNames []string
 }
 
-func Notify(
+func notify(
 	chatID int64,
 	notificationCh chan Notification,
 	client *client.Client,
+	store *storage.Storage,
 ) {
 	var notificationMessageSB strings.Builder
 
-	subscriptions, err := storage.GetAllSubscriptions(chatID)
+	subscriptions, err := store.GetAllSubscriptions(chatID)
 	if err != nil {
 		log.Error(
 			"failed to get all subscriptions",

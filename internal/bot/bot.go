@@ -16,6 +16,7 @@ type Bot struct {
 	botAPI         *tgbotapi.BotAPI
 	cache          loggedUsersCache
 	server         *server.Server
+	store          *storage.Storage
 	notificationCh chan notification.Notification
 }
 
@@ -30,6 +31,7 @@ const (
 func NewBot(
 	config config.Config,
 	server *server.Server,
+	store *storage.Storage,
 	notificationCh chan notification.Notification,
 ) (*Bot, error) {
 	var err error
@@ -44,6 +46,7 @@ func NewBot(
 	return &Bot{
 		botAPI:         bot,
 		server:         server,
+		store:          store,
 		notificationCh: notificationCh,
 	}, nil
 }
@@ -85,12 +88,12 @@ func (b *Bot) handleNotifications() {
 						notification.Message,
 					); err != nil {
 						for _, update := range notification.Updates {
-							updateStorage(notification.ChatID, update)
+							updateStorage(b.store, notification.ChatID, update)
 						}
 					}
 				} else if len(notification.Updates) > 0 {
 					for _, update := range notification.Updates {
-						updateStorage(notification.ChatID, update)
+						updateStorage(b.store, notification.ChatID, update)
 					}
 				}
 			}
@@ -100,9 +103,13 @@ func (b *Bot) handleNotifications() {
 	wg.Wait()
 }
 
-func updateStorage(chatID int64, update notification.Update) {
+func updateStorage(
+	store *storage.Storage,
+	chatID int64,
+	update notification.Update,
+) {
 	if update.LatestTimestamp != 0 {
-		if err := storage.SetLatestSubtitleTimestamp(
+		if err := store.SetLatestSubtitleTimestamp(
 			chatID,
 			update.TitleID,
 			update.LatestTimestamp,
@@ -119,7 +126,7 @@ func updateStorage(chatID int64, update notification.Update) {
 	}
 
 	if update.JapaneseName != "" {
-		if err := storage.SetJapaneseName(
+		if err := store.SetJapaneseName(
 			chatID,
 			update.TitleID,
 			update.JapaneseName,

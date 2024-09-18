@@ -5,22 +5,26 @@ import (
 	"time"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
+	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
 type Manager struct {
 	schedulers     sync.Map
 	clientManager  *client.Manager
+	store          *storage.Storage
 	updateCh       chan SchedulerUpdate
 	notificationCh chan Notification
 }
 
 func NewManager(
 	clientManager *client.Manager,
+	store *storage.Storage,
 	updateCh chan SchedulerUpdate,
 	notificationCh chan Notification,
 ) *Manager {
 	return &Manager{
 		clientManager:  clientManager,
+		store:          store,
 		updateCh:       updateCh,
 		notificationCh: notificationCh,
 	}
@@ -44,7 +48,7 @@ func (m *Manager) AddScheduler(
 		return err
 	}
 
-	scheduler.Start(chatID, m.notificationCh, client)
+	scheduler.Start(chatID, m.notificationCh, client, m.store)
 
 	return nil
 }

@@ -12,10 +12,10 @@ type User struct {
 	APIKey               string
 }
 
-func AddOrGetUser(chatID int64) (User, error) {
+func (s *Storage) AddOrGetUser(chatID int64) (User, error) {
 	var existingUser User
 
-	err := db.Where("chat_id = ?", chatID).First(&existingUser).Error
+	err := s.db.Where("chat_id = ?", chatID).First(&existingUser).Error
 	if err == nil {
 		return existingUser, nil
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -28,12 +28,12 @@ func AddOrGetUser(chatID int64) (User, error) {
 		APIKey:               defaultAPIKey,
 	}
 
-	return user, db.Create(&user).Error
+	return user, s.db.Create(&user).Error
 }
 
-func SetAPIKey(chatID int64, apiKey string) error {
+func (s *Storage) SetAPIKey(chatID int64, apiKey string) error {
 	var user User
-	if err := db.First(
+	if err := s.db.First(
 		&user,
 		"chat_id = ?",
 		chatID).Error; err != nil {
@@ -42,16 +42,16 @@ func SetAPIKey(chatID int64, apiKey string) error {
 
 	user.APIKey = apiKey
 
-	if err := db.Save(&user).Error; err != nil {
+	if err := s.db.Save(&user).Error; err != nil {
 		return errors.New("Failed to update API key")
 	}
 
 	return nil
 }
 
-func GetAPIKey(chatID int64) (string, error) {
+func (s *Storage) GetAPIKey(chatID int64) (string, error) {
 	var user User
-	if err := db.First(
+	if err := s.db.First(
 		&user,
 		"chat_id = ?",
 		chatID).Error; err != nil {
@@ -61,13 +61,13 @@ func GetAPIKey(chatID int64) (string, error) {
 	return user.APIKey, nil
 }
 
-func SetNotificationInterval(chatID int64, interval int) error {
+func (s *Storage) SetNotificationInterval(chatID int64, interval int) error {
 	if interval <= 0 {
 		return errors.New("Notification interval must be greater than 0")
 	}
 
 	var user User
-	if err := db.First(
+	if err := s.db.First(
 		&user,
 		"chat_id = ?",
 		chatID).Error; err != nil {
@@ -76,17 +76,17 @@ func SetNotificationInterval(chatID int64, interval int) error {
 
 	user.NotificationInterval = interval
 
-	if err := db.Save(&user).Error; err != nil {
+	if err := s.db.Save(&user).Error; err != nil {
 		return errors.New("Failed to update notification interval")
 	}
 
 	return nil
 }
 
-func GetAllUsers() ([]User, error) {
+func (s *Storage) GetAllUsers() ([]User, error) {
 	var users []User
 
-	if err := db.Model(&User{}).Find(&users).Error; err != nil {
+	if err := s.db.Model(&User{}).Find(&users).Error; err != nil {
 		return nil, errors.New("Failed to get users")
 	}
 

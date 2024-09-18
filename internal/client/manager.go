@@ -8,12 +8,19 @@ import (
 
 type Manager struct {
 	clients sync.Map
+	store   *storage.Storage
+}
+
+func NewManager(store *storage.Storage) *Manager {
+	return &Manager{
+		store: store,
+	}
 }
 
 func (m *Manager) GetClient(chatID int64) (*Client, error) {
 	unvalidated, ok := m.clients.Load(chatID)
 	if !ok {
-		apiKey, err := storage.GetAPIKey(chatID)
+		apiKey, err := m.store.GetAPIKey(chatID)
 		if err != nil {
 			return nil, err
 		}
@@ -28,7 +35,7 @@ func (m *Manager) GetClient(chatID int64) (*Client, error) {
 }
 
 func (m *Manager) UpdateAPIKey(chatID int64) error {
-	apiKey, err := storage.GetAPIKey(chatID)
+	apiKey, err := m.store.GetAPIKey(chatID)
 	if err != nil {
 		return err
 	}

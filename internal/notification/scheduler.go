@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
+	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
 type Command struct {
@@ -32,9 +33,10 @@ func (s *Scheduler) Start(
 	chatID int64,
 	notificationCh chan Notification,
 	client *client.Client,
+	store *storage.Storage,
 ) {
 	go func() {
-		Notify(chatID, notificationCh, client)
+		notify(chatID, notificationCh, client, store)
 
 		ticker := time.NewTicker(s.interval)
 		defer ticker.Stop()
@@ -51,7 +53,7 @@ func (s *Scheduler) Start(
 					ticker = time.NewTicker(s.interval)
 				}
 			case <-ticker.C:
-				Notify(chatID, notificationCh, client)
+				notify(chatID, notificationCh, client, store)
 			}
 		}
 	}()

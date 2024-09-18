@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/notification"
-	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
 func (s *Server) AddUser(chatID int64) error {
@@ -14,7 +13,7 @@ func (s *Server) AddUser(chatID int64) error {
 		return nil
 	}
 
-	user, err := storage.AddOrGetUser(chatID)
+	user, err := s.store.AddOrGetUser(chatID)
 	if err != nil {
 		return err
 	}
@@ -31,7 +30,7 @@ func (s *Server) SetInterval(
 	chatID int64,
 	interval int,
 ) error {
-	err := storage.SetNotificationInterval(chatID, interval)
+	err := s.store.SetNotificationInterval(chatID, interval)
 	if err != nil {
 		log.Warn(
 			"failed to set interval",
@@ -55,7 +54,7 @@ func (s *Server) SetAPIKey(
 	chatID int64,
 	apiKey string,
 ) error {
-	if err := storage.SetAPIKey(chatID, apiKey); err != nil {
+	if err := s.store.SetAPIKey(chatID, apiKey); err != nil {
 		log.Error(
 			"failed to set api key",
 			"chatID",
@@ -81,7 +80,7 @@ func (s *Server) SetAPIKey(
 }
 
 func (s *Server) ValidateAPIKey(chatID int64) (bool, error) {
-	apiKey, err := storage.GetAPIKey(chatID)
+	apiKey, err := s.store.GetAPIKey(chatID)
 	if err != nil {
 		log.Error(
 			"failed to validate api key",

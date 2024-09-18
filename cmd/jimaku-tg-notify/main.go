@@ -29,11 +29,12 @@ func main() {
 
 	log.Info("loaded env config", "config", config)
 
-	if err := storage.Start(); err != nil {
+	store, err := storage.Start()
+	if err != nil {
 		log.Fatal("failed to connect to storage", "err", err)
 	}
 
-	users, err := storage.GetAllUsers()
+	users, err := store.GetAllUsers()
 	if err != nil {
 		log.Fatal("failed to get users", "err", err)
 	}
@@ -46,16 +47,17 @@ func main() {
 	updateCh := make(chan notification.SchedulerUpdate, runtime.NumCPU())
 	notificationCh := make(chan notification.Notification, runtime.NumCPU())
 
-	clientManager := &client.Manager{}
-	server := server.NewServer(chatIDs, clientManager, updateCh)
+	clientManager := client.NewManager(store)
+	server := server.NewServer(chatIDs, store, clientManager, updateCh)
 
-	bot, err := bot.NewBot(config, server, notificationCh)
+	bot, err := bot.NewBot(config, server, store, notificationCh)
 	if err != nil {
 		log.Fatal("failed to initialize bot", "err", err)
 	}
 
 	notificationManager := notification.NewManager(
 		clientManager,
+		store,
 		updateCh,
 		notificationCh)
 

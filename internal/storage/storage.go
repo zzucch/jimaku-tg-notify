@@ -18,25 +18,29 @@ const (
 	defaultAPIKey   = ""
 )
 
-var db *gorm.DB
+type Storage struct {
+	db *gorm.DB
+}
 
-func Start() error {
+func Start() (*Storage, error) {
 	var err error
 
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
-		return err
+		return nil, err
 	}
 
-	db, err = gorm.Open(sqlite.Open(connection), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(connection), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := db.AutoMigrate(&User{}, &Subscription{}); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &Storage{
+		db: db,
+	}, nil
 }
