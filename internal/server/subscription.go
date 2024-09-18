@@ -33,9 +33,9 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return errors.New("Already subscribed")
 	}
 
-	entry, err := client.GetEntryData(titleID)
+	entry, err := client.GetEntryDetails(titleID)
 	if err != nil {
-		log.Warn("failed to get entry data",
+		log.Warn("failed to get entry details",
 			"titleID",
 			titleID,
 			"err",

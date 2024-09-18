@@ -124,7 +124,7 @@ func getUpdate(
 	titleID int64,
 	client *client.Client,
 ) (Update, error) {
-	entry, err := client.GetEntryData(titleID)
+	entry, err := client.GetEntryDetails(titleID)
 	if err != nil {
 		return Update{}, err
 	}
