@@ -61,7 +61,7 @@ func notify(
 		notificationMessageSB.WriteString(message)
 
 		if err == nil {
-			if update.LatestTimestamp != 0 && update.JapaneseName != "" {
+			if update.LatestTimestamp != 0 || update.JapaneseName != "" {
 				updates = append(updates, update)
 			}
 		}
