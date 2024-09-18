@@ -7,10 +7,10 @@ import (
 )
 
 type Subscription struct {
-	TitleID            int64 `gorm:"primaryKey"`
-	ChatID             int64
+	TitleID      int64 `gorm:"primaryKey"`
+	ChatID       int64
 	LastModified int64
-	JapaneseName       string
+	JapaneseName string
 }
 
 func Subscribe(
@@ -30,10 +30,10 @@ func Subscribe(
 	}
 
 	subscription := Subscription{
-		TitleID:            titleID,
-		ChatID:             chatID,
+		TitleID:      titleID,
+		ChatID:       chatID,
 		LastModified: latestSubtitleTime,
-		JapaneseName:       japaneseName,
+		JapaneseName: japaneseName,
 	}
 
 	if err := db.Create(&subscription).Error; err != nil {
