@@ -34,7 +34,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		messageSB.WriteString(" - ")
 		messageSB.WriteString(
-			util.TimestampToString(subscription.LatestSubtitleTime))
+			util.TimestampToString(subscription.LastModified))
 	}
 
 	_ = b.SendMessage(chatID, messageSB.String())

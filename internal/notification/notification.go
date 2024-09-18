@@ -46,7 +46,7 @@ func Notify(
 	updates := make([]Update, 0, len(subscriptions))
 
 	for _, subscription := range subscriptions {
-		update, err := getUpdate(subscription.TitleID, client)
+		update, err := getUpdate(subscription, client)
 		if err != nil {
 			log.Warn(
 				"failed to get update",
@@ -60,8 +60,6 @@ func Notify(
 		notificationMessageSB.WriteString(message)
 
 		if err == nil {
-
-      // TODO: figure this out
 			if update.LatestTimestamp != 0 && update.JapaneseName != "" {
 				updates = append(updates, update)
 			}
@@ -85,25 +83,4 @@ func Notify(
 		Message: "Updates:\n" + notificationMessageSB.String(),
 		Updates: updates,
 	}
-}
-
-func getUpdate(
-	titleID int64,
-	client *client.Client,
-) (Update, error) {
-	entry, err := client.GetEntryDetails(titleID)
-	if err != nil {
-		return Update{}, err
-	}
-
-	latestTimestamp, err := entry.GetLatestSubtitleTimestamp()
-	if err != nil {
-		return Update{}, err
-	}
-
-	return Update{
-		TitleID:         titleID,
-		LatestTimestamp: latestTimestamp,
-		JapaneseName:    entry.JapaneseName,
-	}, nil
 }

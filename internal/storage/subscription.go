@@ -9,7 +9,7 @@ import (
 type Subscription struct {
 	TitleID            int64 `gorm:"primaryKey"`
 	ChatID             int64
-	LatestSubtitleTime int64
+	LastModified int64
 	JapaneseName       string
 }
 
@@ -32,7 +32,7 @@ func Subscribe(
 	subscription := Subscription{
 		TitleID:            titleID,
 		ChatID:             chatID,
-		LatestSubtitleTime: latestSubtitleTime,
+		LastModified: latestSubtitleTime,
 		JapaneseName:       japaneseName,
 	}
 
@@ -110,7 +110,7 @@ func SetLatestSubtitleTimestamp(
 		return errors.New("Subscription not found")
 	}
 
-	subscription.LatestSubtitleTime = latestSubtitleTime
+	subscription.LastModified = latestSubtitleTime
 
 	if err := db.Save(&subscription).Error; err != nil {
 		return errors.New("Failed to update latest subtitle timestamp")

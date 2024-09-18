@@ -19,14 +19,25 @@ func getUpdateMessage(
 		sb.WriteString("Failed to get latest subtitle date for jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(":\n")
+
 		sb.WriteString(err.Error())
-	} else if subscription.LatestSubtitleTime != update.LatestTimestamp {
+	} else if subscription.LastModified != update.LatestTimestamp {
 		sb.WriteString(update.JapaneseName)
 		sb.WriteString("\n")
+
 		sb.WriteString("jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
 		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
+
+		if len(update.NewFileEntryNames) > 0 {
+			sb.WriteString("\nAdded:")
+		}
+
+		for _, name := range update.NewFileEntryNames {
+			sb.WriteString("\n • ")
+			sb.WriteString(name)
+		}
 	} else {
 		return ""
 	}

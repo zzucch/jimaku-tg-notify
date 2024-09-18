@@ -11,7 +11,7 @@ type Entry struct {
 	JapaneseName string `json:"japanese_name"`
 }
 
-func (e *Entry) GetLatestSubtitleTimestamp() (int64, error) {
+func (e *Entry) GetLastModified() (int64, error) {
 	latestSubtitleTime, err := util.RFC3339ToUnixTimestamp(e.LastModified)
 	if err != nil {
 		return 0, err

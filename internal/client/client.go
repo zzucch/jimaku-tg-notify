@@ -47,7 +47,7 @@ func (c *Client) GetEntryDetails(titleID int64) (*dto.Entry, error) {
 	return &entry, nil
 }
 
-func (c *Client) GetEntryFiles(titleID int64) (*dto.FileEntry, error) {
+func (c *Client) GetFileEntries(titleID int64) ([]dto.FileEntry, error) {
 	url := c.apiBaseURL +
 		"/entries/" +
 		strconv.FormatInt(titleID, 10) +
@@ -58,10 +58,10 @@ func (c *Client) GetEntryFiles(titleID int64) (*dto.FileEntry, error) {
 		return nil, err
 	}
 
-	var entry dto.FileEntry
-	if err = json.Unmarshal([]byte(response), &entry); err != nil {
+	var files []dto.FileEntry
+	if err = json.Unmarshal([]byte(response), &files); err != nil {
 		return nil, err
 	}
 
-	return &entry, nil
+	return files, nil
 }

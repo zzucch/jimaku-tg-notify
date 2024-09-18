@@ -44,7 +44,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 		return err
 	}
 
-	latestSubtitleTimestamp, err := entry.GetLatestSubtitleTimestamp()
+	latestSubtitleTimestamp, err := entry.GetLastModified()
 	if err != nil {
 		log.Warn("failed to get latest subtitle timestamp",
 			"titleID",
