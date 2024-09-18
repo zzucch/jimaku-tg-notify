@@ -22,7 +22,7 @@ func getUpdateMessage(
 
 		sb.WriteString(err.Error())
 	} else if subscription.LastModified != update.LatestTimestamp {
-		sb.WriteString(update.JapaneseName)
+		sb.WriteString(subscription.JapaneseName)
 		sb.WriteString("\n")
 
 		sb.WriteString("jimaku.cc/entry/")
