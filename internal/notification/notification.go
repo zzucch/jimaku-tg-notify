@@ -57,11 +57,13 @@ func notify(
 				err)
 		}
 
-		message := getUpdateMessage(subscription, update, err)
-		notificationMessageSB.WriteString(message)
+		if update.LatestTimestamp != -1 {
+			message := getUpdateMessage(subscription, update, err)
+			notificationMessageSB.WriteString(message)
+		}
 
 		if err == nil {
-			if update.LatestTimestamp != 0 || update.JapaneseName != "" {
+			if update.LatestTimestamp != -1 || update.JapaneseName != "" {
 				updates = append(updates, update)
 			}
 		}

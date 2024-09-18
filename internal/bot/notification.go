@@ -31,7 +31,6 @@ func (b *Bot) handleNotifications() {
 					}
 				}
 
-				log.Debug("lk", "l", notification.Updates)
 				if len(notification.Updates) > 0 {
 					for _, update := range notification.Updates {
 						updateStorage(b.store, notification.ChatID, update)

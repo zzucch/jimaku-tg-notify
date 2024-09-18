@@ -22,7 +22,7 @@ func getUpdate(
 	var newFileEntryNames []string
 
 	if subscription.LastModified == lastModified {
-		lastModified = 0
+		lastModified = -1
 	} else {
 		fileEntries, err := client.GetFileEntries(subscription.TitleID)
 		if err != nil {
