@@ -30,7 +30,7 @@ func getUpdate(
 		}
 
 		for _, fileEntry := range fileEntries {
-			if fileEntry.LastModified.Unix() > lastModified {
+			if fileEntry.LastModified.Unix() > subscription.LastModified {
 				newFileEntryNames = append(newFileEntryNames, fileEntry.Name)
 			}
 		}
