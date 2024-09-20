@@ -21,7 +21,8 @@ func getUpdateMessage(
 		sb.WriteString(":\n")
 
 		sb.WriteString(err.Error())
-	} else if subscription.LastModified != update.LatestTimestamp {
+	} else if subscription.LastModified != update.LatestTimestamp &&
+		len(update.NewFileEntryNames) > 0 {
 		sb.WriteString(subscription.JapaneseName)
 		sb.WriteString("\n")
 
@@ -30,9 +31,7 @@ func getUpdateMessage(
 		sb.WriteString(" at ")
 		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
 
-		if len(update.NewFileEntryNames) > 0 {
-			sb.WriteString("\nAdded:")
-		}
+		sb.WriteString("\nAdded:")
 
 		for _, name := range update.NewFileEntryNames {
 			sb.WriteString("\n • ")
