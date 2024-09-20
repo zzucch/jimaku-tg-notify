@@ -1,6 +1,8 @@
 package notification
 
 import (
+	"sort"
+
 	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
@@ -28,6 +30,10 @@ func getUpdate(
 		if err != nil {
 			return Update{}, err
 		}
+
+		sort.Slice(fileEntries, func(i, j int) bool {
+			return fileEntries[i].LastModified.After(fileEntries[j].LastModified)
+		})
 
 		for _, fileEntry := range fileEntries {
 			if fileEntry.LastModified.Unix() > subscription.LastModified {
