@@ -32,5 +32,5 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 		return
 	}
 
-	_ = b.SendMessage(chatID, "Done")
+	_ = b.SendMessage(chatID, "Notification interval is set")
 }

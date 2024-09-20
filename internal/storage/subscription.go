@@ -140,3 +140,22 @@ func (s *Storage) SetJapaneseName(
 
 	return nil
 }
+
+func (s *Storage) GetSubscription(
+	chatID, titleID int64,
+) (*Subscription, error) {
+	var subscription Subscription
+
+	err := s.db.Where(
+		"chat_id = ? AND title_id = ?",
+		chatID,
+		titleID).First(&subscription).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.New("Subscription not found")
+	} else if err != nil {
+		return nil, errors.New("Failed to get subscription")
+	}
+
+	return &subscription, nil
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 )
 
-func (s *Server) Subscribe(chatID int64, titleID int64) error {
+func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 	client, err := s.clientManager.GetClient(chatID)
 	if err != nil {
 		log.Error(
@@ -18,7 +18,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 			"err",
 			err)
 
-		return err
+		return "", err
 	}
 
 	exists, err := s.store.SubscriptionExists(chatID, titleID)
@@ -31,7 +31,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 	}
 
 	if exists {
-		return errors.New("Already subscribed")
+		return "", errors.New("Already subscribed")
 	}
 
 	entry, err := client.GetEntryDetails(titleID)
@@ -42,7 +42,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 			"err",
 			err)
 
-		return err
+		return "", err
 	}
 
 	latestSubtitleTimestamp, err := entry.GetLastModified()
@@ -53,7 +53,7 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 			"err",
 			err)
 
-		return err
+		return "", err
 	}
 
 	if err := s.store.Subscribe(
@@ -75,13 +75,25 @@ func (s *Server) Subscribe(chatID int64, titleID int64) error {
 			"err",
 			err)
 
-		return err
+		return "", err
 	}
 
-	return nil
+	return entry.JapaneseName, nil
 }
 
-func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
+func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
+	subscription, err := s.store.GetSubscription(chatID, titleID)
+	if err != nil {
+		log.Warn(
+			"failed to find subscription",
+			"chatID",
+			chatID,
+			"titleID",
+			titleID,
+			"err",
+			err)
+	}
+
 	if err := s.store.Unsubscribe(chatID, titleID); err != nil {
 		log.Warn(
 			"failed to unsubscribe",
@@ -92,10 +104,10 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) error {
 			"err",
 			err)
 
-		return err
+		return "", err
 	}
 
-	return nil
+	return subscription.JapaneseName, nil
 }
 
 func (s *Server) ListSubscriptions(

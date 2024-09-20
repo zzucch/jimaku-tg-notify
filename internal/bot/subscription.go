@@ -8,17 +8,28 @@ import (
 )
 
 func (b *Bot) handleSubscribe(update tgbotapi.Update) {
-	b.handleSubscription(update, subscribeCommand, b.server.Subscribe)
+	b.handleSubscription(
+		update,
+		subscribeCommand,
+		b.server.Subscribe,
+		"Subscribed to ",
+	)
 }
 
 func (b *Bot) handleUnsubscribe(update tgbotapi.Update) {
-	b.handleSubscription(update, unsubscribeCommand, b.server.Unsubscribe)
+	b.handleSubscription(
+		update,
+		unsubscribeCommand,
+		b.server.Unsubscribe,
+		"Unsubscribed from ",
+	)
 }
 
 func (b *Bot) handleSubscription(
 	update tgbotapi.Update,
 	command string,
-	action func(chatID int64, titleID int64) error,
+	action func(chatID int64, titleID int64) (string, error),
+	doneMessage string,
 ) {
 	chatID := update.Message.Chat.ID
 
@@ -31,10 +42,11 @@ func (b *Bot) handleSubscription(
 		return
 	}
 
-	if err := action(chatID, titleID); err != nil {
+	name, err := action(chatID, titleID)
+	if err != nil {
 		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
 		return
 	}
 
-	_ = b.SendMessage(update.Message.From.ID, "Done")
+	_ = b.SendMessage(update.Message.From.ID, doneMessage+name)
 }

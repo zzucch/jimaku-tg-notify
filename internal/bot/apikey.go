@@ -32,6 +32,6 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 		b.cache.insert(chatID)
 		b.handleHelp(update)
 	} else {
-		_ = b.SendMessage(chatID, "Done")
+		_ = b.SendMessage(chatID, "API key is set")
 	}
 }
