@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
@@ -111,6 +112,10 @@ func (s *Server) ListSubscriptions(
 
 		return nil, err
 	}
+
+	sort.Slice(subscriptions, func(i, j int) bool {
+		return subscriptions[i].LastModified > subscriptions[j].LastModified
+	})
 
 	return subscriptions, nil
 }
