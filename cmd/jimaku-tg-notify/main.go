@@ -29,7 +29,7 @@ func main() {
 
 	log.Info("loaded env config", "config", config)
 
-	store, err := storage.Start()
+	store, err := storage.NewStorage()
 	if err != nil {
 		log.Fatal("failed to connect to storage", "err", err)
 	}

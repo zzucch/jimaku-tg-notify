@@ -22,7 +22,7 @@ type Storage struct {
 	db *gorm.DB
 }
 
-func Start() (*Storage, error) {
+func NewStorage() (*Storage, error) {
 	var err error
 
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {

@@ -11,7 +11,7 @@ func updateStorage(
 	chatID int64,
 	update notification.Update,
 ) {
-	if update.LatestTimestamp != -1 {
+	if update.LatestTimestamp != -1 && len(update.NewFileEntryNames) > 0 {
 		if err := store.SetLatestSubtitleTimestamp(
 			chatID,
 			update.TitleID,
