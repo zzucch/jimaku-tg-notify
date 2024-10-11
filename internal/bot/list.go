@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/zzucch/jimaku-tg-notify/internal/util"
+	"github.com/zzucch/jimaku-tg-notify/internal/timeutil"
 )
 
 func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
@@ -34,7 +34,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		messageSB.WriteString(" - ")
 		messageSB.WriteString(
-			util.TimestampToString(subscription.LastModified))
+			timeutil.TimestampToString(subscription.LastModified))
 	}
 
 	_ = b.SendMessage(chatID, messageSB.String())

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
-	"github.com/zzucch/jimaku-tg-notify/internal/util"
+	"github.com/zzucch/jimaku-tg-notify/internal/timeutil"
 )
 
 func getUpdateMessage(
@@ -29,7 +29,7 @@ func getUpdateMessage(
 		sb.WriteString("jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
-		sb.WriteString(util.TimestampToString(update.LatestTimestamp))
+		sb.WriteString(timeutil.TimestampToString(update.LatestTimestamp))
 
 		sb.WriteString("\nAdded:")
 

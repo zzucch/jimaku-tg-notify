@@ -3,8 +3,8 @@ package notification
 import (
 	"sort"
 
-	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
+	"github.com/zzucch/jimaku-tg-notify/pkg/client"
 )
 
 func getUpdate(

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/zzucch/jimaku-tg-notify/internal/dto"
-	"github.com/zzucch/jimaku-tg-notify/internal/rate"
+	"github.com/zzucch/jimaku-tg-notify/pkg/dto"
+	"github.com/zzucch/jimaku-tg-notify/pkg/rate"
 )
 
 const attemptsAmount = 5

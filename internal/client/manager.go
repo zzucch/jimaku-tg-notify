@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
+	"github.com/zzucch/jimaku-tg-notify/pkg/client"
 )
 
 type Manager struct {
@@ -17,7 +18,7 @@ func NewManager(store *storage.Storage) *Manager {
 	}
 }
 
-func (m *Manager) GetClient(chatID int64) (*Client, error) {
+func (m *Manager) GetClient(chatID int64) (*client.Client, error) {
 	unvalidated, ok := m.clients.Load(chatID)
 	if !ok {
 		apiKey, err := m.store.GetAPIKey(chatID)
@@ -25,13 +26,13 @@ func (m *Manager) GetClient(chatID int64) (*Client, error) {
 			return nil, err
 		}
 
-		c := NewClient(apiKey)
+		c := client.NewClient(apiKey)
 		m.clients.Store(chatID, c)
 
 		return c, nil
 	}
 
-	return unvalidated.(*Client), nil
+	return unvalidated.(*client.Client), nil
 }
 
 func (m *Manager) UpdateAPIKey(chatID int64) error {
@@ -42,10 +43,10 @@ func (m *Manager) UpdateAPIKey(chatID int64) error {
 
 	unvalidated, ok := m.clients.Load(chatID)
 	if ok {
-		client := unvalidated.(*Client)
+		client := unvalidated.(*client.Client)
 		client.UpdateAPIKey(apiKey)
 	} else {
-		c := NewClient(apiKey)
+		c := client.NewClient(apiKey)
 		m.clients.Store(chatID, c)
 	}
 

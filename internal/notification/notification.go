@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/zzucch/jimaku-tg-notify/internal/client"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
+	"github.com/zzucch/jimaku-tg-notify/pkg/client"
 )
 
 type Notification struct {
