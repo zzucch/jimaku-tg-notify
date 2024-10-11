@@ -25,16 +25,28 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		messageSB.WriteString(" [title_id]")
 	} else {
 		messageSB.WriteString("Subscriptions list (entry, last update):")
-	}
 
-	for _, subscription := range subscriptions {
+		for _, subscription := range subscriptions {
+			messageSB.WriteString("\n\n")
+			messageSB.WriteString(subscription.JapaneseName)
+			messageSB.WriteString("\njimaku.cc/entry/")
+			messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
+			messageSB.WriteString(" - ")
+			messageSB.WriteString(
+				timeutil.TimestampToString(subscription.LastModified))
+		}
+
 		messageSB.WriteString("\n\n")
-		messageSB.WriteString(subscription.JapaneseName)
-		messageSB.WriteString("\njimaku.cc/entry/")
-		messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
-		messageSB.WriteString(" - ")
-		messageSB.WriteString(
-			timeutil.TimestampToString(subscription.LastModified))
+
+		if lastUpdateCheckTimestamp, err := b.server.GetLastUpdateCheck(
+			chatID,
+		); err != nil {
+			messageSB.WriteString("Failed to get last update check time")
+		} else {
+			messageSB.WriteString("Last updates check time:\n")
+			messageSB.WriteString(
+				timeutil.TimestampToString(lastUpdateCheckTimestamp))
+		}
 	}
 
 	_ = b.SendMessage(chatID, messageSB.String())

@@ -2,6 +2,7 @@ package notification
 
 import (
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
@@ -69,6 +70,16 @@ func notify(
 		}
 	}
 
+	if err := store.SetLastUpdateCheck(chatID, time.Now().Unix()); err != nil {
+		log.Error(
+			"failed to set last update check time",
+			"chatID",
+			chatID,
+			"err",
+			err,
+		)
+	}
+
 	if notificationMessageSB.Len() == 0 {
 		if len(updates) != 0 {
 			notificationCh <- Notification{
@@ -77,13 +88,11 @@ func notify(
 				Updates: updates,
 			}
 		}
-
-		return
-	}
-
-	notificationCh <- Notification{
-		ChatID:  chatID,
-		Message: "Updates:\n" + notificationMessageSB.String(),
-		Updates: updates,
+	} else {
+		notificationCh <- Notification{
+			ChatID:  chatID,
+			Message: "Updates:\n" + notificationMessageSB.String(),
+			Updates: updates,
+		}
 	}
 }

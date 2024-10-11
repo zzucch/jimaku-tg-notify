@@ -7,9 +7,10 @@ import (
 )
 
 type User struct {
-	ChatID               int64 `gorm:"primaryKey"`
-	NotificationInterval int
-	APIKey               string
+	ChatID                   int64 `gorm:"primaryKey"`
+	NotificationInterval     int
+	APIKey                   string
+	LastUpdateCheckTimestamp int64
 }
 
 func (s *Storage) AddOrGetUser(chatID int64) (User, error) {
@@ -91,4 +92,28 @@ func (s *Storage) GetAllUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func (s *Storage) SetLastUpdateCheck(chatID int64, timestamp int64) error {
+	var user User
+	if err := s.db.First(&user, "chat_id = ?", chatID).Error; err != nil {
+		return errors.New("User not found")
+	}
+
+	user.LastUpdateCheckTimestamp = timestamp
+
+	if err := s.db.Save(&user).Error; err != nil {
+		return errors.New("Failed to update last update check timestamp")
+	}
+
+	return nil
+}
+
+func (s *Storage) GetLastUpdateCheck(chatID int64) (int64, error) {
+	var user User
+	if err := s.db.First(&user, "chat_id = ?", chatID).Error; err != nil {
+		return 0, errors.New("User not found")
+	}
+
+	return user.LastUpdateCheckTimestamp, nil
 }

@@ -37,7 +37,8 @@ func (s *Server) SetInterval(
 			"chatID",
 			chatID,
 			"err",
-			err)
+			err,
+		)
 
 		return err
 	}
@@ -60,7 +61,8 @@ func (s *Server) SetAPIKey(
 			"chatID",
 			chatID,
 			"err",
-			err)
+			err,
+		)
 
 		return err
 	}
@@ -71,7 +73,8 @@ func (s *Server) SetAPIKey(
 			"chatID",
 			chatID,
 			"err",
-			err)
+			err,
+		)
 
 		return err
 	}
@@ -87,7 +90,8 @@ func (s *Server) ValidateAPIKey(chatID int64) (bool, error) {
 			"chatID",
 			chatID,
 			"err",
-			err)
+			err,
+		)
 
 		return false, err
 	}
@@ -97,4 +101,19 @@ func (s *Server) ValidateAPIKey(chatID int64) (bool, error) {
 
 func validateKey(apiKey string) bool {
 	return apiKey != ""
+}
+
+func (s *Server) GetLastUpdateCheck(chatID int64) (int64, error) {
+	timestamp, err := s.store.GetLastUpdateCheck(chatID)
+	if err != nil {
+		log.Error(
+			"failed to get last update check timestamp",
+			"chatID",
+			chatID,
+			"err",
+			err,
+		)
+		return 0, err
+	}
+	return timestamp, nil
 }
