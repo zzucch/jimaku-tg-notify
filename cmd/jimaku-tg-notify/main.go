@@ -16,7 +16,7 @@ import (
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		panic(err)
+		log.Warn("failed to load .env", "err", err)
 	}
 }
 
