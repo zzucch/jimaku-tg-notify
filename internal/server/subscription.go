@@ -64,8 +64,6 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 	); err != nil {
 		log.Warn(
 			"failed to subscribe",
-			"chatID",
-			chatID,
 			"titleID",
 			titleID,
 			"latestSubtitleTime",
@@ -86,8 +84,6 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
 	if err != nil {
 		log.Warn(
 			"failed to find subscription",
-			"chatID",
-			chatID,
 			"titleID",
 			titleID,
 			"err",
@@ -97,8 +93,6 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
 	if err := s.store.Unsubscribe(chatID, titleID); err != nil {
 		log.Warn(
 			"failed to unsubscribe",
-			"chatID",
-			chatID,
 			"titleID",
 			titleID,
 			"err",
@@ -117,8 +111,6 @@ func (s *Server) ListSubscriptions(
 	if err != nil {
 		log.Error(
 			"failed to get all subscriptions",
-			"chatID",
-			chatID,
 			"err",
 			err)
 
@@ -144,8 +136,6 @@ func (s *Server) SetLatestTimestamp(
 	); err != nil {
 		log.Error(
 			"failed to set latest timestamp",
-			"chatID",
-			chatID,
 			"titleID",
 			titleID,
 			"err",
@@ -165,8 +155,6 @@ func (s *Server) SetJapaneseName(
 	); err != nil {
 		log.Error(
 			"failed to set japanese name",
-			"chatID",
-			chatID,
 			"japanese name",
 			japaneseName,
 			"err",

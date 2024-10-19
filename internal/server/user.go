@@ -34,8 +34,6 @@ func (s *Server) SetInterval(
 	if err != nil {
 		log.Warn(
 			"failed to set interval",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -58,8 +56,6 @@ func (s *Server) SetAPIKey(
 	if err := s.store.SetAPIKey(chatID, apiKey); err != nil {
 		log.Error(
 			"failed to set api key",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -70,8 +66,6 @@ func (s *Server) SetAPIKey(
 	if err := s.clientManager.UpdateAPIKey(chatID); err != nil {
 		log.Error(
 			"failed to update api key",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -87,8 +81,6 @@ func (s *Server) ValidateAPIKey(chatID int64) (bool, error) {
 	if err != nil {
 		log.Error(
 			"failed to validate api key",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -108,8 +100,6 @@ func (s *Server) GetLastUpdateCheck(chatID int64) (int64, error) {
 	if err != nil {
 		log.Error(
 			"failed to get last update check timestamp",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -122,8 +112,6 @@ func (s *Server) SetUTCOffset(chatID int64, offsetMinutes int) error {
 	if err := s.store.SetUTCOffset(chatID, offsetMinutes); err != nil {
 		log.Error(
 			"failed to set utc offset",
-			"chatID",
-			chatID,
 			"offsetMinutes",
 			offsetMinutes,
 			"err",
@@ -141,8 +129,6 @@ func (s *Server) GetUTCOffset(chatID int64) (int, error) {
 	if err != nil {
 		log.Error(
 			"failed to get utc offset",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)

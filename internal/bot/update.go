@@ -19,8 +19,6 @@ func updateStorage(
 		); err != nil {
 			log.Error(
 				"failed to set latest timestamp",
-				"chatID",
-				chatID,
 				"update",
 				update,
 				"err",
@@ -36,8 +34,6 @@ func updateStorage(
 		); err != nil {
 			log.Error(
 				"failed to set japanese name",
-				"chatID",
-				chatID,
 				"update",
 				update,
 				"err",

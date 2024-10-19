@@ -34,8 +34,6 @@ func notify(
 	if err != nil {
 		log.Error(
 			"failed to get all subscriptions",
-			"chatID",
-			chatID,
 			"err",
 			err)
 
@@ -51,8 +49,6 @@ func notify(
 	if err != nil {
 		log.Error(
 			"failed to get utc offset",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
@@ -84,8 +80,6 @@ func notify(
 	if err := store.SetLastUpdateCheck(chatID, time.Now().Unix()); err != nil {
 		log.Error(
 			"failed to set last update check time",
-			"chatID",
-			chatID,
 			"err",
 			err,
 		)
