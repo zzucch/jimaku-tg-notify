@@ -47,6 +47,17 @@ func notify(
 
 	updates := make([]Update, 0, len(subscriptions))
 
+	offsetMinutes, err := store.GetUTCOffset(chatID)
+	if err != nil {
+		log.Error(
+			"failed to get utc offset",
+			"chatID",
+			chatID,
+			"err",
+			err,
+		)
+	}
+
 	for _, subscription := range subscriptions {
 		update, err := getUpdate(subscription, client)
 		if err != nil {
@@ -59,7 +70,7 @@ func notify(
 		}
 
 		if update.LatestTimestamp != -1 {
-			message := getUpdateMessage(subscription, update, err)
+			message := getUpdateMessage(subscription, update, offsetMinutes, err)
 			notificationMessageSB.WriteString(message)
 		}
 

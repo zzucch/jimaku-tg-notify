@@ -23,6 +23,7 @@ const (
 	unsubscribeCommand = "/unsub"
 	apiKeyCommand      = "/apikey"
 	intervalCommand    = "/interval"
+	offsetCommand      = "/utc_offset"
 )
 
 func NewBot(

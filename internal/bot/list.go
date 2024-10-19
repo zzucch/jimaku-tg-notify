@@ -3,6 +3,7 @@ package bot
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/timeutil"
@@ -26,6 +27,12 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	} else {
 		messageSB.WriteString("Subscriptions list (entry, last update):")
 
+		offsetMinutes, err := b.server.GetUTCOffset(chatID)
+		if err != nil {
+			_ = b.SendMessage(chatID, "Failed to process, cannot get UTC offset")
+			return
+		}
+
 		for _, subscription := range subscriptions {
 			messageSB.WriteString("\n\n")
 			messageSB.WriteString(subscription.JapaneseName)
@@ -33,7 +40,11 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 			messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 			messageSB.WriteString(" - ")
 			messageSB.WriteString(
-				timeutil.TimestampToString(subscription.LastModified))
+				timeutil.TimestampToString(
+					timeutil.AddUTCOffsetInMinutes(
+						time.Unix(subscription.LastModified, 0),
+						offsetMinutes,
+					).Unix()))
 		}
 
 		messageSB.WriteString("\n\n")
@@ -45,7 +56,11 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		} else {
 			messageSB.WriteString("Last updates check time:\n")
 			messageSB.WriteString(
-				timeutil.TimestampToString(lastUpdateCheckTimestamp))
+				timeutil.TimestampToString(
+					timeutil.AddUTCOffsetInMinutes(
+						time.Unix(lastUpdateCheckTimestamp, 0),
+						offsetMinutes,
+					).Unix()))
 		}
 	}
 

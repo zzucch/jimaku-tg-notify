@@ -73,6 +73,8 @@ func (b *Bot) handleCommand(command string, update tgbotapi.Update) {
 		b.handleAPIKeyChange(update)
 	case intervalCommand:
 		b.handleNotificationIntervalChange(update)
+	case offsetCommand:
+		b.handleSettingUTCOffset(update)
 	default:
 		b.handleHelp(update)
 	}

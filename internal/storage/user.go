@@ -10,6 +10,7 @@ type User struct {
 	ChatID                   int64 `gorm:"primaryKey"`
 	NotificationInterval     int
 	APIKey                   string
+	UTCOffsetMinutes         int
 	LastUpdateCheckTimestamp int64
 }
 
@@ -27,6 +28,7 @@ func (s *Storage) AddOrGetUser(chatID int64) (User, error) {
 		ChatID:               chatID,
 		NotificationInterval: defaultInterval,
 		APIKey:               defaultAPIKey,
+		UTCOffsetMinutes:     0,
 	}
 
 	return user, s.db.Create(&user).Error
@@ -116,4 +118,28 @@ func (s *Storage) GetLastUpdateCheck(chatID int64) (int64, error) {
 	}
 
 	return user.LastUpdateCheckTimestamp, nil
+}
+
+func (s *Storage) SetUTCOffset(chatID int64, offsetMinutes int) error {
+	var user User
+	if err := s.db.First(&user, "chat_id = ?", chatID).Error; err != nil {
+		return errors.New("User not found")
+	}
+
+	user.UTCOffsetMinutes = offsetMinutes
+
+	if err := s.db.Save(&user).Error; err != nil {
+		return errors.New("Failed to update UTC offset")
+	}
+
+	return nil
+}
+
+func (s *Storage) GetUTCOffset(chatID int64) (int, error) {
+	var user User
+	if err := s.db.First(&user, "chat_id = ?", chatID).Error; err != nil {
+		return 0, errors.New("User not found")
+	}
+
+	return user.UTCOffsetMinutes, nil
 }

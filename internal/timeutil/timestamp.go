@@ -33,3 +33,8 @@ func RFC3339ToUnixTimestamp(rfc3339time string) (int64, error) {
 
 	return timestamp.Unix(), nil
 }
+
+func AddUTCOffsetInMinutes(t time.Time, offsetMinutes int) time.Time {
+	duration := time.Duration(offsetMinutes) * time.Minute
+	return t.Add(duration)
+}

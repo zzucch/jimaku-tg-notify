@@ -117,3 +117,38 @@ func (s *Server) GetLastUpdateCheck(chatID int64) (int64, error) {
 	}
 	return timestamp, nil
 }
+
+func (s *Server) SetUTCOffset(chatID int64, offsetMinutes int) error {
+	if err := s.store.SetUTCOffset(chatID, offsetMinutes); err != nil {
+		log.Error(
+			"failed to set utc offset",
+			"chatID",
+			chatID,
+			"offsetMinutes",
+			offsetMinutes,
+			"err",
+			err,
+		)
+
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) GetUTCOffset(chatID int64) (int, error) {
+	offset, err := s.store.GetUTCOffset(chatID)
+	if err != nil {
+		log.Error(
+			"failed to get utc offset",
+			"chatID",
+			chatID,
+			"err",
+			err,
+		)
+
+		return 0, err
+	}
+
+	return offset, nil
+}

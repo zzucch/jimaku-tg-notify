@@ -3,6 +3,7 @@ package notification
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 	"github.com/zzucch/jimaku-tg-notify/internal/timeutil"
@@ -11,6 +12,7 @@ import (
 func getUpdateMessage(
 	subscription storage.Subscription,
 	update Update,
+	offsetMinutes int,
 	err error,
 ) string {
 	var sb strings.Builder
@@ -29,7 +31,12 @@ func getUpdateMessage(
 		sb.WriteString("jimaku.cc/entry/")
 		sb.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 		sb.WriteString(" at ")
-		sb.WriteString(timeutil.TimestampToString(update.LatestTimestamp))
+		sb.WriteString(
+			timeutil.TimestampToString(
+				timeutil.AddUTCOffsetInMinutes(
+					time.Unix(update.LatestTimestamp, 0),
+					offsetMinutes,
+				).Unix()))
 
 		sb.WriteString("\nAdded:")
 
