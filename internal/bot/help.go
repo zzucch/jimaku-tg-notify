@@ -23,7 +23,7 @@ By default it is 6 hours
 /utc_offset [minutes]
 Set time offset from UTC in minutes. 
 For example, for UTC+5:30 the value in minutes is 330.
-By default it is 0.
+By default it is 0
 
 /apikey [key]
 Set personal api key
