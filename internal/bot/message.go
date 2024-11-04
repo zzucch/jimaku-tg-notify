@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	maxRetries       = 5
+	maxRetries       = 15
 	maxMessageLength = 4096
 )
 
@@ -87,8 +87,7 @@ func getRetryAfterDuration(err error) (time.Duration, bool) {
 		const correctPartsAmount = 2
 
 		if len(parts) == correctPartsAmount {
-			if retryAfterSeconds, parseErr :=
-				strconv.Atoi(parts[1]); parseErr == nil {
+			if retryAfterSeconds, parseErr := strconv.Atoi(parts[1]); parseErr == nil {
 				return time.Duration(retryAfterSeconds) * time.Second, true
 			}
 		}

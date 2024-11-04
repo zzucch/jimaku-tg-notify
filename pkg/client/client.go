@@ -9,7 +9,7 @@ import (
 	"github.com/zzucch/jimaku-tg-notify/pkg/rate"
 )
 
-const attemptsAmount = 5
+const attemptsAmount = 15
 
 type Client struct {
 	apiKey     string
