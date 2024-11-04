@@ -35,7 +35,7 @@ func (c *Client) getResponse(url string, attempts int) (string, error) {
 				continue
 			}
 
-			return "", err
+			return "", errors.New("network error")
 		}
 		defer response.Body.Close()
 
