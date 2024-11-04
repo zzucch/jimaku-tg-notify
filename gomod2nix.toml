@@ -5,14 +5,17 @@ schema = 3
     version = "v2.0.1"
     hash = "sha256-6Bp0jBZ6npvsYcKZGHHIUSVSTAMEyieweAX2YAKDjjg="
   [mod."github.com/caarlos0/env/v11"]
-    version = "v11.1.0"
-    hash = "sha256-54eWceHP2SR8C3gSk4+NmW+qmCTCwa6CYRfA6DxHEmM="
+    version = "v11.2.2"
+    hash = "sha256-JynIe8XQ/nweKS0jCaqQYYHIbjy0TMVALAbr7dpTixw="
   [mod."github.com/charmbracelet/lipgloss"]
-    version = "v0.10.0"
-    hash = "sha256-JZD1iVeizYe0mp3qQcJbUZdYN6HP/DNC67ja79DTe6s="
+    version = "v1.0.0"
+    hash = "sha256-6ilMmaNrkVUt+RtuDu2lMAGFWe6Dx6921swURY+M1HE="
   [mod."github.com/charmbracelet/log"]
     version = "v0.4.0"
     hash = "sha256-VQerB44vC646n3fe3haJ3DHa9L5+GRhCfDfm1p3QnZk="
+  [mod."github.com/charmbracelet/x/ansi"]
+    version = "v0.4.3"
+    hash = "sha256-L8+W7dZvb1HmnEdhHG1bPqF2lsz5hmLkfj8zuuIEdhU="
   [mod."github.com/go-logfmt/logfmt"]
     version = "v0.6.0"
     hash = "sha256-RtIG2qARd5sT10WQ7F3LR8YJhS8exs+KiuUiVf75bWg="
@@ -32,14 +35,14 @@ schema = 3
     version = "v1.2.0"
     hash = "sha256-Gg9dDJFCTaHrKHRR1SrJgZ8fWieJkybljybkI9x0gyE="
   [mod."github.com/mattn/go-isatty"]
-    version = "v0.0.18"
-    hash = "sha256-QpIn0DSggtBn2ocyj0RlXDKLK5F5KZG1/ogzrqBCjF8="
+    version = "v0.0.20"
+    hash = "sha256-qhw9hWtU5wnyFyuMbKx+7RB8ckQaFQ8D+8GKPkN3HHQ="
   [mod."github.com/mattn/go-runewidth"]
-    version = "v0.0.15"
-    hash = "sha256-WP39EU2UrQbByYfnwrkBDoKN7xzXsBssDq3pNryBGm0="
+    version = "v0.0.16"
+    hash = "sha256-NC+ntvwIpqDNmXb7aixcg09il80ygq6JAnW0Gb5b/DQ="
   [mod."github.com/mattn/go-sqlite3"]
-    version = "v1.14.22"
-    hash = "sha256-CWF2Hjg43658NhaePWbGzS19gHJXjuTroG5c0W3hgYQ="
+    version = "v1.14.24"
+    hash = "sha256-taGKFZFQlR5++5b2oZ1dYS3RERKv6yh1gniNWhb4egg="
   [mod."github.com/muesli/reflow"]
     version = "v0.3.0"
     hash = "sha256-Pou2ybE9SFSZG6YfZLVV1Eyfm+X4FuVpDPLxhpn47Cc="
@@ -50,17 +53,17 @@ schema = 3
     version = "v0.4.7"
     hash = "sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo="
   [mod."golang.org/x/exp"]
-    version = "v0.0.0-20231006140011-7918f672742d"
-    hash = "sha256-2SO1etTQ6UCUhADR5sgvDEDLHcj77pJKCIa/8mGDbAo="
+    version = "v0.0.0-20241009180824-f66d83c29e7c"
+    hash = "sha256-ICL1UU2rrOBespsjNrlvrAhZOFLMcxYWAx8pDQCgAXM="
   [mod."golang.org/x/sys"]
-    version = "v0.13.0"
-    hash = "sha256-/+RDZ0a0oEfJ0k304VqpJpdrl2ZXa3yFlOxy4mjW7w0="
+    version = "v0.26.0"
+    hash = "sha256-YjklsWNhx4g4TaWRWfFe1TMFKujbqiaNvZ38bfI35fM="
   [mod."golang.org/x/text"]
-    version = "v0.14.0"
-    hash = "sha256-yh3B0tom1RfzQBf1RNmfdNWF1PtiqxV41jW1GVS6JAg="
+    version = "v0.19.0"
+    hash = "sha256-C92pSYLLUQ2NKKcc60wpoSJ5UWAfnWkmd997C13fXdU="
   [mod."gorm.io/driver/sqlite"]
     version = "v1.5.6"
     hash = "sha256-ruKKw0WUlpVkkGGO0lsaXfhy5RmbgpSJ0qEA5ICPqlA="
   [mod."gorm.io/gorm"]
-    version = "v1.25.11"
-    hash = "sha256-cR0jsCCR0CpqSA0Ci5Uq0/1YDONj3dl6lRuRYcu4HpQ="
+    version = "v1.25.12"
+    hash = "sha256-GDUgUp7FmmuNTVb+EcnhVqmPExp2VjS5vHU3m4HqGyM="
