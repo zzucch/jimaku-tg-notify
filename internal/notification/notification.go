@@ -18,7 +18,7 @@ type Notification struct {
 type Update struct {
 	TitleID           int64
 	LatestTimestamp   int64
-	JapaneseName      string
+	Name              string
 	NewFileEntryNames []string
 }
 
@@ -71,7 +71,7 @@ func notify(
 		}
 
 		if err == nil {
-			if update.LatestTimestamp != -1 || update.JapaneseName != "" {
+			if update.LatestTimestamp != -1 || update.Name != "" {
 				updates = append(updates, update)
 			}
 		}

@@ -25,7 +25,7 @@ func getUpdateMessage(
 		sb.WriteString(err.Error())
 	} else if subscription.LastModified != update.LatestTimestamp &&
 		len(update.NewFileEntryNames) > 0 {
-		sb.WriteString(subscription.JapaneseName)
+		sb.WriteString(subscription.Name)
 		sb.WriteString("\n")
 
 		sb.WriteString("jimaku.cc/entry/")

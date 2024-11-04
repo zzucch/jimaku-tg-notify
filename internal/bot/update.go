@@ -26,14 +26,14 @@ func updateStorage(
 		}
 	}
 
-	if update.JapaneseName != "" {
-		if err := store.SetJapaneseName(
+	if update.Name != "" {
+		if err := store.SetName(
 			chatID,
 			update.TitleID,
-			update.JapaneseName,
+			update.Name,
 		); err != nil {
 			log.Error(
-				"failed to set japanese name",
+				"failed to set name",
 				"update",
 				update,
 				"err",

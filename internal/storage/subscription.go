@@ -10,12 +10,12 @@ type Subscription struct {
 	TitleID      int64 `gorm:"primaryKey"`
 	ChatID       int64
 	LastModified int64
-	JapaneseName string
+	Name         string
 }
 
 func (s *Storage) Subscribe(
 	chatID, titleID, latestSubtitleTime int64,
-	japaneseName string,
+	name string,
 ) error {
 	var existingSubscription Subscription
 
@@ -33,7 +33,7 @@ func (s *Storage) Subscribe(
 		TitleID:      titleID,
 		ChatID:       chatID,
 		LastModified: latestSubtitleTime,
-		JapaneseName: japaneseName,
+		Name:         name,
 	}
 
 	if err := s.db.Create(&subscription).Error; err != nil {
@@ -119,9 +119,9 @@ func (s *Storage) SetLatestSubtitleTimestamp(
 	return nil
 }
 
-func (s *Storage) SetJapaneseName(
+func (s *Storage) SetName(
 	chatID, titleID int64,
-	japaneseName string,
+	name string,
 ) error {
 	var subscription Subscription
 
@@ -132,10 +132,10 @@ func (s *Storage) SetJapaneseName(
 		return errors.New("Subscription not found")
 	}
 
-	subscription.JapaneseName = japaneseName
+	subscription.Name = name
 
 	if err := s.db.Save(&subscription).Error; err != nil {
-		return errors.New("Failed to update japanese name")
+		return errors.New("Failed to update name")
 	}
 
 	return nil

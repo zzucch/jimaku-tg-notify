@@ -35,7 +35,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 
 		for _, subscription := range subscriptions {
 			messageSB.WriteString("\n\n")
-			messageSB.WriteString(subscription.JapaneseName)
+			messageSB.WriteString(subscription.Name)
 			messageSB.WriteString("\njimaku.cc/entry/")
 			messageSB.WriteString(strconv.FormatInt(subscription.TitleID, 10))
 			messageSB.WriteString(" - ")

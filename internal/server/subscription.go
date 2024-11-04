@@ -16,7 +16,8 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 
 		return "", err
 	}
@@ -27,7 +28,8 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 	}
 
 	if exists {
@@ -40,7 +42,8 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 
 		return "", err
 	}
@@ -51,16 +54,30 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 
 		return "", err
+	}
+
+	name := ""
+	if entry.JapaneseName != "" {
+		name = entry.JapaneseName
+	} else if entry.Name != "" {
+		name = entry.Name
+	} else if entry.EnglishName != "" {
+		name = entry.EnglishName
+	}
+
+	if name == "" {
+		log.Error("failed to assign name value", "entry", entry)
 	}
 
 	if err := s.store.Subscribe(
 		chatID,
 		titleID,
 		latestSubtitleTimestamp,
-		entry.JapaneseName,
+		name,
 	); err != nil {
 		log.Warn(
 			"failed to subscribe",
@@ -71,12 +88,13 @@ func (s *Server) Subscribe(chatID int64, titleID int64) (string, error) {
 			"entry",
 			entry,
 			"err",
-			err)
+			err,
+		)
 
 		return "", err
 	}
 
-	return entry.JapaneseName, nil
+	return name, nil
 }
 
 func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
@@ -87,7 +105,8 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 	}
 
 	if err := s.store.Unsubscribe(chatID, titleID); err != nil {
@@ -96,12 +115,13 @@ func (s *Server) Unsubscribe(chatID int64, titleID int64) (string, error) {
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 
 		return "", err
 	}
 
-	return subscription.JapaneseName, nil
+	return subscription.Name, nil
 }
 
 func (s *Server) ListSubscriptions(
@@ -112,7 +132,8 @@ func (s *Server) ListSubscriptions(
 		log.Error(
 			"failed to get all subscriptions",
 			"err",
-			err)
+			err,
+		)
 
 		return nil, err
 	}
@@ -139,25 +160,27 @@ func (s *Server) SetLatestTimestamp(
 			"titleID",
 			titleID,
 			"err",
-			err)
+			err,
+		)
 	}
 }
 
-func (s *Server) SetJapaneseName(
+func (s *Server) SetName(
 	chatID int64,
 	titleID int64,
-	japaneseName string,
+	name string,
 ) {
-	if err := s.store.SetJapaneseName(
+	if err := s.store.SetName(
 		chatID,
 		titleID,
-		japaneseName,
+		name,
 	); err != nil {
 		log.Error(
-			"failed to set japanese name",
-			"japanese name",
-			japaneseName,
+			"failed to set name",
+			"name",
+			name,
 			"err",
-			err)
+			err,
+		)
 	}
 }

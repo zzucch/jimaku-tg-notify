@@ -3,6 +3,7 @@ package notification
 import (
 	"sort"
 
+	"github.com/charmbracelet/log"
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
 	"github.com/zzucch/jimaku-tg-notify/pkg/client"
 )
@@ -42,17 +43,29 @@ func getUpdate(
 		}
 	}
 
-	var japaneseName string
-	if subscription.JapaneseName == entry.JapaneseName {
-		japaneseName = ""
+	var name string
+	if (entry.JapaneseName != "" && subscription.Name == entry.JapaneseName) ||
+		(entry.Name != "" && subscription.Name == entry.Name) ||
+		(entry.EnglishName != "" && subscription.Name == entry.EnglishName) {
+		name = ""
 	} else {
-		japaneseName = entry.JapaneseName
+		if entry.JapaneseName != "" {
+			name = entry.JapaneseName
+		} else if entry.Name != "" {
+			name = entry.Name
+		} else if entry.EnglishName != "" {
+			name = entry.EnglishName
+		}
+
+		if name == "" {
+			log.Error("failed to assign name value", "entry", entry)
+		}
 	}
 
 	return Update{
 		TitleID:           subscription.TitleID,
 		LatestTimestamp:   lastModified,
-		JapaneseName:      japaneseName,
+		Name:              name,
 		NewFileEntryNames: newFileEntryNames,
 	}, nil
 }
