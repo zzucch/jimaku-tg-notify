@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/zzucch/jimaku-tg-notify/internal/timeutil"
 )
@@ -12,9 +13,14 @@ import (
 func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 	chatID := update.Message.From.ID
 
-	subscriptions, err := b.server.ListSubscriptions(chatID)
-	if err != nil {
-		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+	subscriptions, listErr := b.server.ListSubscriptions(chatID)
+	if listErr != nil {
+		if sendErr := b.SendMessage(
+			chatID,
+			"Failed to process.\n"+listErr.Error(),
+		); sendErr != nil {
+			log.Error("failed to send message", "err", sendErr)
+		}
 	}
 
 	var messageSB strings.Builder
@@ -29,7 +35,12 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 
 		offsetMinutes, err := b.server.GetUTCOffset(chatID)
 		if err != nil {
-			_ = b.SendMessage(chatID, "Failed to process, cannot get UTC offset")
+			if err := b.SendMessage(
+				chatID,
+				"Failed to process, cannot get UTC offset",
+			); err != nil {
+				log.Error("failed to send message", "err", err)
+			}
 			return
 		}
 
@@ -64,5 +75,7 @@ func (b *Bot) handleSubscriptionList(update tgbotapi.Update) {
 		}
 	}
 
-	_ = b.SendMessage(chatID, messageSB.String())
+	if err := b.SendMessage(chatID, messageSB.String()); err != nil {
+		log.Error("failed to send message", "err", err)
+	}
 }

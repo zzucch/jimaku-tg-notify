@@ -1,6 +1,7 @@
 package client
 
 import (
+	"log"
 	"sync"
 
 	"github.com/zzucch/jimaku-tg-notify/internal/storage"
@@ -43,7 +44,17 @@ func (m *Manager) UpdateAPIKey(chatID int64) error {
 
 	unvalidated, ok := m.clients.Load(chatID)
 	if ok {
-		client := unvalidated.(*client.Client)
+		client, ok := unvalidated.(*client.Client)
+		if !ok {
+			log.Fatal(
+				"invalid type",
+				"expected",
+				"*client.Client",
+				"actual",
+				unvalidated,
+			)
+		}
+
 		client.UpdateAPIKey(apiKey)
 	} else {
 		c := client.NewClient(apiKey)

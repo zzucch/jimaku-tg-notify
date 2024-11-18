@@ -13,11 +13,13 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 
 	chatID := update.Message.From.ID
 
-	err := b.server.AddUser(update.Message.From.ID)
-	if err != nil {
-		_ = b.SendMessage(
+	if serverErr := b.server.AddUser(update.Message.From.ID); serverErr != nil {
+		if sendErr := b.SendMessage(
 			chatID,
-			"Failed due to a critical error - contact the developers")
+			"Failed due to a critical error - contact the developers",
+		); sendErr != nil {
+			log.Error("failed to send message", "err", sendErr)
+		}
 
 		log.Error(
 			"failed to add user",
@@ -31,10 +33,15 @@ func (b *Bot) handleMessage(update tgbotapi.Update) {
 	}
 
 	if !b.cache.exists(chatID) {
-		if exists, err := b.server.ValidateAPIKey(chatID); err != nil {
-			_ = b.SendMessage(
+		if exists, validationErr := b.server.ValidateAPIKey(
+			chatID,
+		); validationErr != nil {
+			if sendErr := b.SendMessage(
 				chatID,
-				"Failed due to a critical error - contact the developers")
+				"Failed due to a critical error - contact the developers",
+			); sendErr != nil {
+				log.Error("failed to send message", "err", sendErr)
+			}
 
 			return
 		} else if exists {

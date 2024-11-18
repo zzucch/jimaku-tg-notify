@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -17,20 +18,40 @@ func (b *Bot) handleNotificationIntervalChange(update tgbotapi.Update) {
 
 	interval, err := strconv.Atoi(unvalidatedInterval)
 	if unvalidatedInterval == "" || err != nil {
-		_ = b.SendMessage(chatID, "Example usage:\n"+intervalCommand+" 24")
+		if err := b.SendMessage(
+			chatID,
+			"Example usage:\n"+intervalCommand+" 24",
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 		return
 	}
 
 	const maxSupportedInterval = int(math.MaxInt64 / time.Hour)
 	if interval > maxSupportedInterval {
-		_ = b.SendMessage(chatID, "Do not use unreasonably long interval")
+		if err := b.SendMessage(
+			chatID,
+			"Do not use unreasonably long interval",
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 		return
 	}
 
 	if err := b.server.SetInterval(chatID, interval); err != nil {
-		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		if err := b.SendMessage(
+			chatID,
+			"Failed to process.\n"+err.Error(),
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 		return
 	}
 
-	_ = b.SendMessage(chatID, "Notification interval is set")
+	if err := b.SendMessage(
+		chatID,
+		"Notification interval is set",
+	); err != nil {
+		log.Error("failed to send message", "err", err)
+	}
 }

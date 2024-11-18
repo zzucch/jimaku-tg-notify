@@ -3,6 +3,7 @@ package bot
 import (
 	"strings"
 
+	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -14,17 +15,25 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 	split := strings.Split(apiKey, " ")
 
 	if apiKey == "" || len(split) > 1 {
-		_ = b.SendMessage(
+		if err := b.SendMessage(
 			chatID,
 			"Example usage:\n"+
 				apiKeyCommand+
-				" ZXhhbXBsZSBhcGkga2V5IGV4YW1wbGUg")
+				" ZXhhbXBsZSBhcGkga2V5IGV4YW1wbGUg",
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 
 		return
 	}
 
 	if err := b.server.SetAPIKey(chatID, apiKey); err != nil {
-		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		if err := b.SendMessage(
+			chatID,
+			"Failed to process.\n"+err.Error(),
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 		return
 	}
 
@@ -32,6 +41,8 @@ func (b *Bot) handleAPIKeyChange(update tgbotapi.Update) {
 		b.cache.insert(chatID)
 		b.handleHelp(update)
 	} else {
-		_ = b.SendMessage(chatID, "API key is set")
+		if err := b.SendMessage(chatID, "API key is set"); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
 	}
 }

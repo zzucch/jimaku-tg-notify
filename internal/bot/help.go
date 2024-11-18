@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -33,5 +34,7 @@ How to get Title ID:
 For example, the jimaku entry for 「逃げるは恥だが役に立つ」 is https://jimaku.cc/entry/3331, so the Title ID would be 3331
 `
 
-	_ = b.SendMessage(update.Message.From.ID, helpMessage)
+	if err := b.SendMessage(update.Message.From.ID, helpMessage); err != nil {
+		log.Error("failed to send message", "err", err)
+	}
 }

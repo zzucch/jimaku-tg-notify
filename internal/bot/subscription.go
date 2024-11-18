@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -38,15 +39,32 @@ func (b *Bot) handleSubscription(
 
 	titleID, err := strconv.ParseInt(unvalidatedTitleID, 10, 64)
 	if unvalidatedTitleID == "" || err != nil || titleID < 0 {
-		_ = b.SendMessage(chatID, "Example usage:\n"+command+" 123")
+		if err := b.SendMessage(
+			chatID,
+			"Example usage:\n"+command+" 123",
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
+
 		return
 	}
 
 	name, err := action(chatID, titleID)
 	if err != nil {
-		_ = b.SendMessage(chatID, "Failed to process.\n"+err.Error())
+		if err := b.SendMessage(
+			chatID,
+			"Failed to process.\n"+err.Error(),
+		); err != nil {
+			log.Error("failed to send message", "err", err)
+		}
+
 		return
 	}
 
-	_ = b.SendMessage(update.Message.From.ID, doneMessage+name)
+	if err := b.SendMessage(
+		update.Message.From.ID,
+		doneMessage+name,
+	); err != nil {
+		log.Error("failed to send message", "err", err)
+	}
 }

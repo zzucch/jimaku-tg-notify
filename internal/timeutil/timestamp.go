@@ -7,8 +7,8 @@ import (
 )
 
 func TimestampToString(timestamp int64) string {
-	t := time.Unix(timestamp, 0).UTC()
-	formattedTime := t.Format(time.DateTime)
+	utcTime := time.Unix(timestamp, 0).UTC()
+	formattedTime := utcTime.Format(time.DateTime)
 
 	if len(formattedTime) != len(time.DateTime) {
 		log.Error(
@@ -34,7 +34,7 @@ func RFC3339ToUnixTimestamp(rfc3339time string) (int64, error) {
 	return timestamp.Unix(), nil
 }
 
-func AddUTCOffsetInMinutes(t time.Time, offsetMinutes int) time.Time {
+func AddUTCOffsetInMinutes(inputTime time.Time, offsetMinutes int) time.Time {
 	duration := time.Duration(offsetMinutes) * time.Minute
-	return t.Add(duration)
+	return inputTime.Add(duration)
 }
